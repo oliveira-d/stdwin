@@ -3,8 +3,8 @@
 usuario="Nome de Usuario"
 :: definir o padrão de nome da máquina. Ex: nos nomes BEEP-0123 ou BEEP-9999 o padrão definido é BEEP
 padrao_nome_maquina=BEEP
-wallpaperPath="C:\padronizacao_windows\Files\WALLPAPER.jpg"
-lockscreenPath="C:\padronizacao_windows\Files\WALLPAPER.jpg"
+wallpaperPath="C:\padronizacao-windows\Files\WALLPAPER.jpg"
+lockscreenPath="C:\padronizacao-windows\Files\WALLPAPER.jpg"
 senha_super=1234
 senha_suporte=1234
 winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.5.1881/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
