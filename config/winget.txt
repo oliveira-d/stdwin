@@ -1,0 +1,11 @@
+:: Esse arquivo contém IDs de programas instalados pelo winget no script setup.cmd
+:: Para encontrar um programa no repositório da microsoft, basta abrir o terminal ou prompt de comando, e usar o seguinte comando
+:: winget search "nome do programa"
+:: Para instalá-lo com o script, basta adicioná-lo à essa lista
+:: linhas que começam com :: são comentários e são ignoradas pelo script
+7zip.7zip
+Microsoft.Office
+Google.Chrome
+Piriform.CCleaner
+Google.Drive
+Adobe.Acrobat.Reader.64-bit
