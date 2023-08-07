@@ -40,6 +40,9 @@ if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 ::     COMEÇO DO SCRIPT     ::
 ::::::::::::::::::::::::::::::
 
+:: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
+setlocal EnableDelayedExpansion
+
 :: Definição de variáveis a partir do arquivo config.txt
 FOR /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) DO ( set %%V )
 
@@ -72,7 +75,11 @@ IF '%ERRORLEVEL%' == '0' (
 
 @echo on
 :: instalação de programas via winget | o parâmetro --force é necessário porque às vezes os desenvolvedores não atualizam a hash de verificação do instalador. Mesmo com o parâmetro --force, ainda pode ser necessário instalar algo manualmente nesses casos
-FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) DO ( winget install --force %%P )
+ver > nul
+FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) DO (
+winget install --force %%P
+IF NOT '!errorlevel!' == '0' ( echo "Falha ao instalar %%P. Para corrigir, abra o prompt de comando sem privilegio de administrador e entre com o seguinte commando: winget install --force %%P" >> log.txt )
+)
 
 :: copiar atalhos de URL para a área de trabalho e para o Menu Iniciar
 FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" )
