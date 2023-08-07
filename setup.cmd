@@ -78,7 +78,7 @@ IF '%ERRORLEVEL%' == '0' (
 ver > nul
 FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) DO (
 winget install --force %%P
-IF NOT '!errorlevel!' == '0' ( echo "Falha ao instalar %%P. Para corrigir, abra o prompt de comando sem privilegio de administrador e entre com o seguinte commando: winget install --force %%P" >> log.txt )
+IF NOT '!errorlevel!' == '0' ( echo "winget install --force %%P" >> fix-setup.cmd )
 )
 
 :: copiar atalhos de URL para a área de trabalho e para o Menu Iniciar
@@ -141,4 +141,16 @@ net localgroup Administradores %usuario% /delete
 :: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários não tenham acesso às senhas escritas nele
 del "%~dp0config\config.txt"
 rundll32.exe user32.dll,LockWorkStation
+IF EXIST fix-setup.cmd (
+echo ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+echo "ERROS FORAM ENCONTRADOS DURANTE A INSTALAÇÃO DE PROGRAMAS VIA WINGET."
+echo "Para conserta-los execute, sem privilégio de administrador, o script fix-setup.cmd"
+echo ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+echo "ERROS FORAM ENCONTRADOS DURANTE A INSTALAÇÃO DE PROGRAMAS VIA WINGET."
+echo "Para conserta-los execute, sem privilégio de administrador, o script fix-setup.cmd"
+echo ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+echo "ERROS FORAM ENCONTRADOS DURANTE A INSTALAÇÃO DE PROGRAMAS VIA WINGET."
+echo "Para conserta-los execute, sem privilégio de administrador, o script fix-setup.cmd"
+echo ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+)
 pause
