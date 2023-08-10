@@ -1,11 +1,11 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::           SCRIPT DE CONFIGURA«√O DO WINDOWS                 ::
+::           SCRIPT DE CONFIGURA√á√ÉO DO WINDOWS                 ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Automaticamente checar e obter privilÈgios de Admin ::
+:: Automaticamente checar e obter privil√©gios de Admin ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-@echo off
+@ECHO off
 CLS
 
 :init
@@ -20,7 +20,7 @@ NET FILE 1>NUL 2>NUL
 if '%errorlevel%' == '0' ( goto gotPrivileges ) else ( goto getPrivileges )
 
 :getPrivileges
-if '%1'=='ELEV' (echo ELEV & shift /1 & goto gotPrivileges)
+if '%1'=='ELEV' (ECHO ELEV & shift /1 & goto gotPrivileges)
 
 ECHO Set UAC = CreateObject^("Shell.Application"^) > "%vbsGetPrivileges%"
 ECHO args = "ELEV " >> "%vbsGetPrivileges%"
@@ -37,16 +37,19 @@ cd /d %~dp0
 if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 
 ::::::::::::::::::::::::::::::
-::     COME«O DO SCRIPT     ::
+::     COME√áO DO SCRIPT     ::
 ::::::::::::::::::::::::::::::
 
 :: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
 setlocal EnableDelayedExpansion
 chcp 1252 > nul
-:: DefiniÁ„o de vari·veis a partir do arquivo config.txt
+set first_winget_install=done
+set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+
+:: Defini√ß√£o de vari√°veis a partir do arquivo config.txt
 FOR /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) DO ( set %%V )
 
-:: verificar se winget est· instalado e, se n„o, instalar winget e relanÁar o script:
+:: verificar se winget est√° instalado e, se n√£o, instalar winget e relan√ßar o script:
 ver > nul
 where winget
 CLS
@@ -54,45 +57,48 @@ IF '%ERRORLEVEL%' == '1' (
 	
 	systeminfo | find "Windows 11"
 	IF NOT '!ERRORLEVEL!' == '0' (
-		ECHO Foi^ detectado^ que^ o^ sistema^ instalado^ n„o^ È^ Windows^ 11.^ Instale^ manualmente^ o^ 'Instalador^ de^ Aplicativos'^ disponÌvel^ na^ Microsoft^ Store^ e^ execute^ esse^ script^ novamente.
+		ECHO Foi^ detectado^ que^ o^ sistema^ instalado^ n√£o^ √©^ Windows^ 11.^ Instale^ manualmente^ o^ 'Instalador^ de^ Aplicativos'^ dispon√≠vel^ na^ Microsoft^ Store^ e^ execute^ esse^ script^ novamente.
 		pause
 		exit
 	)
-	
-	powershell Invoke-WebRequest -Uri %winget_url% -OutFile Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
-	powershell Add-AppXPackage -Path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+	CLS
+	IF NOT EXIST .\Files\%winget_msixbundle% ( 
+		ECHO Baixando^ o^ winget...
+		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle%
+	)
+	CLS
+	ECHO Instalando^ o^ winget...
+	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle%
 	%0
 	exit
 )
 
-:: VerificaÁ„o do nome do computador
-@echo off
+:: Verifica√ß√£o do nome do computador
 ver > nul
 IF %renomear_maquina%==sempre (
-	IF NOT EXIST .\config\MR (
-		echo Nome^ do^ computador^ n„o^ est·^ de^ acordo^ com^ o^ padr„o^ requerido.
+	IF NOT EXIST "%~dp0config\MR" (
+		ECHO Nome^ do^ computador^ n√£o^ est√°^ de^ acordo^ com^ o^ padr√£o^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
-		echo M·quina^ renomeada > .\config\MR
-		echo Esse^ script^ ser·^ interrompido^ e^ a^ m·quina^ ser·^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ prÛxima^ sess„o^ apÛs^ confirmar^ que^ o^ nome^ do^ computador^ est·^ no^ padr„o^ requerido
+		ECHO M√°quina^ renomeada > "%~dp0config\MR"
+		ECHO Esse^ script^ ser√°^ interrompido^ e^ a^ m√°quina^ ser√°^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ pr√≥xima^ sess√£o^ ap√≥s^ confirmar^ que^ o^ nome^ do^ computador^ est√°^ no^ padr√£o^ requerido
 		shutdown /r /t 30
 		pause
 		exit
 	)
 ) ELSE IF %renomear_maquina%==verificar (
-	echo %computername% | findstr "%padrao_nome_maquina%" > nul
+	ECHO %computername% | findstr "%padrao_nome_maquina%" > nul
 	IF NOT '!ERRORLEVEL!' == '0' (
-		echo Nome^ do^ computador^ n„o^ est·^ de^ acordo^ com^ o^ padr„o^ requerido.
+		ECHO Nome^ do^ computador^ n√£o^ est√°^ de^ acordo^ com^ o^ padr√£o^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
-		echo M·quina^ renomeada > .\config\MR
-		echo Esse^ script^ ser·^ interrompido^ e^ a^ m·quina^ ser·^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ prÛxima^ sess„o^ apÛs^ confirmar^ que^ o^ nome^ do^ computador^ est·^ no^ padr„o^ requerido
+		ECHO Esse^ script^ ser√°^ interrompido^ e^ a^ m√°quina^ ser√°^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ pr√≥xima^ sess√£o^ ap√≥s^ confirmar^ que^ o^ nome^ do^ computador^ est√°^ no^ padr√£o^ requerido
 		shutdown /r /t 30
 		pause
 		exit
 	)
 ) ELSE IF %renomear_maquina%==ignorar (
-	echo Ignorando^ verificaÁ„o^ de^ nome^ de^ m·quina.
+	ECHO Ignorando^ verifica√ß√£o^ de^ nome^ de^ m√°quina.
 ) ELSE (
-	ECHO Par‚metro^ "renomear_maquina"^ n„o^ reconhecido.
+	ECHO Par√¢metro^ "renomear_maquina"^ n√£o^ reconhecido.
 	pause
 	exit
 )
@@ -100,22 +106,35 @@ IF %renomear_maquina%==sempre (
 FOR %%F IN ( "%~dp0Files\*.exe" ) DO ( "%%F" )
 FOR %%F IN ( "%~dp0Files\*.msi" ) DO ( "%%F" )
 
-@echo on
-:: instalaÁ„o de programas via winget | o par‚metro --force È necess·rio porque ‡s vezes os desenvolvedores n„o atualizam a hash de verificaÁ„o do instalador. Mesmo com o par‚metro --force, ainda pode ser necess·rio instalar algo manualmente nesses casos
+:: instala√ß√£o de programas via winget | o par√¢metro --force √© necess√°rio porque √†s vezes os desenvolvedores n√£o atualizam a hash de verifica√ß√£o do instalador. Mesmo com o par√¢metro --force, ainda pode ser necess√°rio instalar algo manualmente nesses casos
+winget list --accept-source-agreements > nul
 ver > nul
+ECHO Instalando^ programas^ via^ winget...
 FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) DO (
 	winget list | find /i "%%P "
 	IF '!errorlevel!' == '1' ( 
-		winget install %%P
+		ECHO Instalando^ %%P...
+		IF '%first_winget_install%' == 'done' ( 
+		winget install %%P 
+		) ELSE ( 
+			winget install --accept-source-agreements %%P
+			set first_winget_install=done
+		)
+	) ELSE (
+		ECHO %%P^ j√° est√° instalado!
 	)
-	IF NOT '!errorlevel!' == '0' ( echo winget^ install^ --force^ %%P >> fix-setup.cmd )
+	IF NOT '!errorlevel!' == '0' ( 
+		ECHO Falha^ na^ instala√ß√£o^ de^ %%P!
+		ECHO winget^ install^ --force^ %%P >> "%~dp0fix-setup.cmd" 
+	)
+	CLS
 )
 
-:: copiar atalhos de URL para a ·rea de trabalho e para o Menu Iniciar
-FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" )
-FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%userprofile%\Desktop\" )
+:: copiar atalhos de URL para a √°rea de trabalho e para o Menu Iniciar
+FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" > nul )
+FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%userprofile%\Desktop\" > nul )
 
-:: PERMITIR EXECU«√O DOS SCRIPTS DE POWERSHELL
+:: PERMITIR EXECU√á√ÉO DOS SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy unrestricted
 
 :: Aplicar papel de parede
@@ -124,7 +143,7 @@ powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" %wallpaperPath%
 :: Aplicar tela de bloqueio
 powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
 
-:: RESTRINGIR EXECU«√O DE SCRIPTS DE POWERSHELL
+:: RESTRINGIR EXECU√á√ÉO DE SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy restricted
 
 :: desabilitar OneDrive
@@ -135,53 +154,60 @@ netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out p
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 
-:: desabilitar serviÁo de hostpot
+:: desabilitar servi√ßo de hostpot
 sc config icssvc start=disabled
 
 :: desabilitar programas da Samsung em modelos 550X*
-@echo off
 ver > nul
-:: a linha acima serve apenas para resetar o valor de %errorlevel% para 0, caso algum dos comandos anteriores tenha retornado cÛdigo de erro - set ERRORLEVEL=0 n„o pode ser usado porque o valor se torna persistente e n„o se altera com erros seguintes
 wmic computersystem get model | findstr "550X" > nul
 IF '%ERRORLEVEL%' == '0' (
-	powershell Set-Service -Name "SamsungPlatformEngine" -StartupType "disabled"
-	powershell Set-Service -Name "SamsungSecuritySupportService" -StartupType "disabled"
-	powershell Set-Service -Name "SamsungSystemSupportService" -StartupType "disabled"
+	ECHO Desabilitando^ servi√ßos^ da^ Samsung...
+	sc config SamsungPlatformEngine start=disabled
+	sc config SamsungSecuritySupportService start=disabled
+	sc config SamsungSystemSupportService start=disabled
+	:: powershell Set-Service -Name "SamsungPlatformEngine" -StartupType "disabled"
+	:: powershell Set-Service -Name "SamsungSecuritySupportService" -StartupType "disabled"
+	:: powershell Set-Service -Name "SamsungSystemSupportService" -StartupType "disabled"
+	CLS
 )
-@echo on
+@ECHO on
 
-:: criaÁ„o de usu·rios Super e Suporte
+:: cria√ß√£o de usu√°rios Super e Suporte
 net user super /add
 net user suporte /add
 
-:: definiÁ„o de senhas de usu·rios Super e Suporte
+:: defini√ß√£o de senhas de usu√°rios Super e Suporte
 net user super %senha_super%
 net user suporte %senha_suporte%
+net user %usuario% %senha_usuario%
 
-:: remover expiraÁ„o de senha dos usu·rios - usu·rios criados pelo Rufus e pelo comando acima tÍm uma senha com prazo e apÛs esse prazo o sistema pede por uma nova senha que seria escolhida pelo usu·rio
+:: remover expira√ß√£o de senha dos usu√°rios - usu√°rios criados pelo Rufus e pelo comando acima t√™m uma senha com prazo e ap√≥s esse prazo o sistema pede por uma nova senha que seria escolhida pelo usu√°rio
 wmic UserAccount where Name='super' set PasswordExpires=false
 wmic UserAccount where Name='suporte' set PasswordExpires=false
 wmic UserAccount where Name=%usuario% set PasswordExpires=false
 
-:: conceder/remover privilÈgios de admin dos usu·rios
+:: conceder/remover privil√©gios de admin dos usu√°rios
 net localgroup Administradores super /add
 net localgroup Administradores suporte /add
 net localgroup Administradores %usuario% /delete
 
-:: o script pausa antes de fechar o cmd e deleta o arquivo de configuraÁ„o para que usu·rios n„o tenham acesso ‡s senhas escritas nele
+:: o script pausa antes de fechar o cmd e deleta o arquivo de configura√ß√£o para que usu√°rios n√£o tenham acesso √†s senhas escritas nele
 del "%~dp0config\config.txt"
+del "%~dp0config\MR"
+
 rundll32.exe user32.dll,LockWorkStation
-IF EXIST fix-setup.cmd (
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA«√O^ DE^ PROGRAMAS^ VIA^ WINGET.
-echo ::^ Para^ consert·-los^ execute,^ sem^ privilÈgio^ de^ administrador^ o^ script^ fix-setup.cmd
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA«√O^ DE^ PROGRAMAS^ VIA^ WINGET.
-echo ::^ Para^ consert·-los^ execute,^ sem^ privilÈgio^ de^ administrador^ o^ script^ fix-setup.cmd
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA«√O^ DE^ PROGRAMAS^ VIA^ WINGET.
-echo ::^ Para^ consert·-los^ execute,^ sem^ privilÈgio^ de^ administrador^ o^ script^ fix-setup.cmd
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+IF EXIST "%~dp0fix-setup.cmd" (
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA√á√ÉO^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consert√°-los^ execute,^ sem^ privil√©gio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA√á√ÉO^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consert√°-los^ execute,^ sem^ privil√©gio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA√á√ÉO^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consert√°-los^ execute,^ sem^ privil√©gio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 )
 pause
 exit
