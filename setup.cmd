@@ -45,6 +45,8 @@ setlocal EnableDelayedExpansion
 chcp 1252 > nul
 set first_winget_install=done
 set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+set ui_xaml_appx=Microsoft.UI.Xaml.2.7.x64.appx
+set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
 
 :: Definição de variáveis a partir do arquivo config.txt
 FOR /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) DO ( set %%V )
@@ -55,15 +57,22 @@ where winget
 CLS
 IF '%ERRORLEVEL%' == '1' (
 	
-	systeminfo | find "Windows 11"
-	IF NOT '!ERRORLEVEL!' == '0' (
-		ECHO Foi^ detectado^ que^ o^ sistema^ instalado^ não^ é^ Windows^ 11.^ Instale^ manualmente^ o^ 'Instalador^ de^ Aplicativos'^ disponível^ na^ Microsoft^ Store^ e^ execute^ esse^ script^ novamente.
-		pause
-		exit
+	systeminfo | find "Windows 10"
+	IF '!ERRORLEVEL!' == '0' (
+		IF NOT EXIST .\Files\%ui_xaml_appx% ( 
+			ECHO Baixando^ Microsoft.UI.Xaml...
+			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx%
+		)
+		IF NOT EXIST .\Files\%vclib_appx% ( 
+			ECHO Baixando^ Microsoft.VCLibs...
+			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx%
+		)
+		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx%
+		powershell Add-AppXPackage -Path .\Files\%vclib_appx%
 	)
 	CLS
 	IF NOT EXIST .\Files\%winget_msixbundle% ( 
-		ECHO Baixando^ o^ winget...
+		ECHO Baixando^ o^ Microsoft.DesktopAppInstaller^ winget...
 		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle%
 	)
 	CLS
@@ -179,7 +188,6 @@ net user suporte /add
 :: definição de senhas de usuários Super e Suporte
 net user super %senha_super%
 net user suporte %senha_suporte%
-net user %usuario% %senha_usuario%
 
 :: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando acima têm uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
 wmic UserAccount where Name='super' set PasswordExpires=false
