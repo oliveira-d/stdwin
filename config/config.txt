@@ -20,4 +20,4 @@ senha_suporte=1234
 senha_usuario=1234
 
 :: endereço para download do winget
-winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.5.1881/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.5.2201/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
