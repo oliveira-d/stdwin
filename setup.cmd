@@ -51,37 +51,6 @@ set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
 :: Definição de variáveis a partir do arquivo config.txt
 FOR /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) DO ( set %%V )
 
-:: verificar se winget está instalado e, se não, instalar winget e relançar o script:
-ver > nul
-where winget
-CLS
-IF '%ERRORLEVEL%' == '1' (
-	
-	systeminfo | find "Windows 10"
-	IF '!ERRORLEVEL!' == '0' (
-		IF NOT EXIST .\Files\%ui_xaml_appx% ( 
-			ECHO Baixando^ Microsoft.UI.Xaml...
-			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx%
-		)
-		IF NOT EXIST .\Files\%vclib_appx% ( 
-			ECHO Baixando^ Microsoft.VCLibs...
-			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx%
-		)
-		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx%
-		powershell Add-AppXPackage -Path .\Files\%vclib_appx%
-	)
-	CLS
-	IF NOT EXIST .\Files\%winget_msixbundle% ( 
-		ECHO Baixando^ o^ Microsoft.DesktopAppInstaller^ winget...
-		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle%
-	)
-	CLS
-	ECHO Instalando^ o^ winget...
-	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle%
-	%0
-	exit
-)
-
 :: Verificação do nome do computador
 ver > nul
 IF %renomear_maquina%==sempre (
@@ -112,10 +81,42 @@ IF %renomear_maquina%==sempre (
 	exit
 )
 
-FOR %%F IN ( "%~dp0Files\*.exe" ) DO ( "%%F" )
-FOR %%F IN ( "%~dp0Files\*.msi" ) DO ( "%%F" )
+IF NOT '%1' == 'programas-manuais-instalados' (
+	FOR %%F IN ( "%~dp0Files\*.exe" ) DO ( "%%F" )
+	FOR %%F IN ( "%~dp0Files\*.msi" ) DO ( "%%F" )
+)
 
-:: instalação de programas via winget | o parâmetro --force é necessário porque às vezes os desenvolvedores não atualizam a hash de verificação do instalador. Mesmo com o parâmetro --force, ainda pode ser necessário instalar algo manualmente nesses casos
+:: verificar se winget está instalado e, se não, instalá-lo e relançar o script:
+ver > nul
+where winget
+CLS
+IF '%ERRORLEVEL%' == '1' (
+	systeminfo | find "Windows 10"
+	IF '!ERRORLEVEL!' == '0' (
+		IF NOT EXIST .\Files\%ui_xaml_appx% ( 
+			ECHO Baixando^ Microsoft.UI.Xaml...
+			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx%
+		)
+		IF NOT EXIST .\Files\%vclib_appx% ( 
+			ECHO Baixando^ Microsoft.VCLibs...
+			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx%
+		)
+		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx%
+		powershell Add-AppXPackage -Path .\Files\%vclib_appx%
+	)
+	CLS
+	IF NOT EXIST .\Files\%winget_msixbundle% ( 
+		ECHO Baixando^ Microsoft.DesktopAppInstaller...
+		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle%
+	)
+	CLS
+	ECHO Instalando^ o^ winget...
+	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle%
+	%0 programas-manuais-instalados
+	exit
+)
+
+:: instalação de programas via winget
 winget list --accept-source-agreements > nul
 ver > nul
 ECHO Instalando^ programas^ via^ winget...
