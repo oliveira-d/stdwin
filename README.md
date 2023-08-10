@@ -1,3 +1,5 @@
+Script em batch para padronização de sistemas Windows 11 e 10.
+
 INSTRUÇÕES DE USO: 
 1) Instale o Windows com o usuário padrão ("Beep Saude" ou outro) como administrador (único usuário do sistema)
 3) Renomeie o computador de acordo com o número de patrimônio - reinicie o computador para que tenha efeito.
