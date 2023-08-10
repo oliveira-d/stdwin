@@ -1,10 +1,24 @@
 :: Esse arquivo contém variáveis utilizadas no script setup.cmd
 :: linhas que começam com :: são comentários e são ignoradas pelo script
+:: Preste atenção em quais parâmetros existem aspas e quais não
+
 usuario="Nome de Usuario"
+
 :: definir o padrão de nome da máquina. Ex: nos nomes BEEP-0123 ou BEEP-9999 o padrão definido é BEEP
 padrao_nome_maquina=BEEP
+
+:: a variável abaixo pode ser usada pra fazer o script sempre forçar renomear a máquina, renomear só quando detectar fora do padrão OU ignorar completamente. Os valores possíveis são respectivamente: sempre, verificar, ignorar
+renomear_maquina=sempre
+
+:: caminho para o papel de parede e tela de bloqueio
 wallpaperPath="C:\padronizacao-windows\Files\WALLPAPER.jpg"
 lockscreenPath="C:\padronizacao-windows\Files\WALLPAPER.jpg"
+
+:: definição das senhas de usuários
 senha_super=1234
 senha_suporte=1234
-winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.5.1881/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+
+:: endereço para download do winget e dependências
+winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.5.2201/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+ms_ui_xaml_url=https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.7.3/Microsoft.UI.Xaml.2.7.x64.appx
+ms_vclib_url=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx

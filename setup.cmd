@@ -1,11 +1,11 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: SCRIPT DE CONFIGURAÇÃO DO WINDOWS PARA COMPUTADORES DA BEEP ::
+::           SCRIPT DE CONFIGURAÇÃO DO WINDOWS                 ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Automaticamente checar e obter privilégios de Admin ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-@echo off
+@ECHO off
 CLS
 
 :init
@@ -20,7 +20,7 @@ NET FILE 1>NUL 2>NUL
 if '%errorlevel%' == '0' ( goto gotPrivileges ) else ( goto getPrivileges )
 
 :getPrivileges
-if '%1'=='ELEV' (echo ELEV & shift /1 & goto gotPrivileges)
+if '%1'=='ELEV' (ECHO ELEV & shift /1 & goto gotPrivileges)
 
 ECHO Set UAC = CreateObject^("Shell.Application"^) > "%vbsGetPrivileges%"
 ECHO args = "ELEV " >> "%vbsGetPrivileges%"
@@ -40,43 +40,108 @@ if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 ::     COMEÇO DO SCRIPT     ::
 ::::::::::::::::::::::::::::::
 
+:: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
+setlocal EnableDelayedExpansion
+chcp 1252 > nul
+set first_winget_install=done
+set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+set ui_xaml_appx=Microsoft.UI.Xaml.2.7.x64.appx
+set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
+
 :: Definição de variáveis a partir do arquivo config.txt
 FOR /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) DO ( set %%V )
 
 :: verificar se winget está instalado e, se não, instalar winget e relançar o script:
 ver > nul
 where winget
+CLS
 IF '%ERRORLEVEL%' == '1' (
-	powershell Invoke-WebRequest -Uri %winget_url% -OutFile Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
-	powershell Add-AppXPackage -Path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+	
+	systeminfo | find "Windows 10"
+	IF '!ERRORLEVEL!' == '0' (
+		IF NOT EXIST .\Files\%ui_xaml_appx% ( 
+			ECHO Baixando^ Microsoft.UI.Xaml...
+			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx%
+		)
+		IF NOT EXIST .\Files\%vclib_appx% ( 
+			ECHO Baixando^ Microsoft.VCLibs...
+			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx%
+		)
+		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx%
+		powershell Add-AppXPackage -Path .\Files\%vclib_appx%
+	)
+	CLS
+	IF NOT EXIST .\Files\%winget_msixbundle% ( 
+		ECHO Baixando^ o^ Microsoft.DesktopAppInstaller^ winget...
+		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle%
+	)
+	CLS
+	ECHO Instalando^ o^ winget...
+	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle%
 	%0
 	exit
 )
 
-:: instalação de programas via arquivos locais - executar apenas quando o computador já tiver tido seu nome alterado para BEEP-XXXX
-@echo off
+:: Verificação do nome do computador
 ver > nul
-:: a linha acima serve apenas para resetar o valor de %errorlevel% para 0, caso algum dos comandos anteriores tenha retornado código de erro - set ERRORLEVEL=0 não pode ser usado porque o valor se torna persistente e não se altera com erros seguintes
-echo %computername% | findstr "%padrao_nome_maquina%" > nul
-IF '%ERRORLEVEL%' == '0' (
-	FOR %%F IN ( "%~dp0Files\*.exe" ) DO ( "%%F" )
-	FOR %%F IN ( "%~dp0Files\*.msi" ) DO ( "%%F" )
+IF %renomear_maquina%==sempre (
+	IF NOT EXIST "%~dp0config\MR" (
+		ECHO Nome^ do^ computador^ não^ está^ de^ acordo^ com^ o^ padrão^ requerido.
+		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
+		ECHO Máquina^ renomeada > "%~dp0config\MR"
+		ECHO Esse^ script^ será^ interrompido^ e^ a^ máquina^ será^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ próxima^ sessão^ após^ confirmar^ que^ o^ nome^ do^ computador^ está^ no^ padrão^ requerido
+		shutdown /r /t 30
+		pause
+		exit
+	)
+) ELSE IF %renomear_maquina%==verificar (
+	ECHO %computername% | findstr "%padrao_nome_maquina%" > nul
+	IF NOT '!ERRORLEVEL!' == '0' (
+		ECHO Nome^ do^ computador^ não^ está^ de^ acordo^ com^ o^ padrão^ requerido.
+		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
+		ECHO Esse^ script^ será^ interrompido^ e^ a^ máquina^ será^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ próxima^ sessão^ após^ confirmar^ que^ o^ nome^ do^ computador^ está^ no^ padrão^ requerido
+		shutdown /r /t 30
+		pause
+		exit
+	)
+) ELSE IF %renomear_maquina%==ignorar (
+	ECHO Ignorando^ verificação^ de^ nome^ de^ máquina.
 ) ELSE (
-	echo "Nome do computador nao esta de acordo com o padrao requerido."
-	"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
-	echo "Esse script sera interrompido e a maquina sera reiniciada em 30 segundos. Execute esse script novamente na proxima sessao apos confirmar que o nome do computador esta no padrao requerido"
-	shutdown /r /t 30
+	ECHO Parâmetro^ "renomear_maquina"^ não^ reconhecido.
 	pause
 	exit
 )
 
-@echo on
+FOR %%F IN ( "%~dp0Files\*.exe" ) DO ( "%%F" )
+FOR %%F IN ( "%~dp0Files\*.msi" ) DO ( "%%F" )
+
 :: instalação de programas via winget | o parâmetro --force é necessário porque às vezes os desenvolvedores não atualizam a hash de verificação do instalador. Mesmo com o parâmetro --force, ainda pode ser necessário instalar algo manualmente nesses casos
-FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) DO ( winget install --force %%P )
+winget list --accept-source-agreements > nul
+ver > nul
+ECHO Instalando^ programas^ via^ winget...
+FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) DO (
+	winget list | find /i "%%P "
+	IF '!errorlevel!' == '1' ( 
+		ECHO Instalando^ %%P...
+		IF '%first_winget_install%' == 'done' ( 
+		winget install %%P 
+		) ELSE ( 
+			winget install --accept-source-agreements %%P
+			set first_winget_install=done
+		)
+	) ELSE (
+		ECHO %%P^ já está instalado!
+	)
+	IF NOT '!errorlevel!' == '0' ( 
+		ECHO Falha^ na^ instalação^ de^ %%P!
+		ECHO winget^ install^ --force^ %%P >> "%~dp0fix-setup.cmd" 
+	)
+	CLS
+)
 
 :: copiar atalhos de URL para a área de trabalho e para o Menu Iniciar
-FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" )
-FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%userprofile%\Desktop\" )
+FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" > nul )
+FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%userprofile%\Desktop\" > nul )
 
 :: PERMITIR EXECUÇÃO DOS SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy unrestricted
@@ -102,16 +167,19 @@ reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v T
 sc config icssvc start=disabled
 
 :: desabilitar programas da Samsung em modelos 550X*
-@echo off
 ver > nul
-:: a linha acima serve apenas para resetar o valor de %errorlevel% para 0, caso algum dos comandos anteriores tenha retornado código de erro - set ERRORLEVEL=0 não pode ser usado porque o valor se torna persistente e não se altera com erros seguintes
 wmic computersystem get model | findstr "550X" > nul
 IF '%ERRORLEVEL%' == '0' (
-	powershell Set-Service -Name "SamsungPlatformEngine" -StartupType "disabled"
-	powershell Set-Service -Name "SamsungSecuritySupportService" -StartupType "disabled"
-	powershell Set-Service -Name "SamsungSystemSupportService" -StartupType "disabled"
+	ECHO Desabilitando^ serviços^ da^ Samsung...
+	sc config SamsungPlatformEngine start=disabled
+	sc config SamsungSecuritySupportService start=disabled
+	sc config SamsungSystemSupportService start=disabled
+	:: powershell Set-Service -Name "SamsungPlatformEngine" -StartupType "disabled"
+	:: powershell Set-Service -Name "SamsungSecuritySupportService" -StartupType "disabled"
+	:: powershell Set-Service -Name "SamsungSystemSupportService" -StartupType "disabled"
+	CLS
 )
-@echo on
+@ECHO on
 
 :: criação de usuários Super e Suporte
 net user super /add
@@ -133,5 +201,21 @@ net localgroup Administradores %usuario% /delete
 
 :: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários não tenham acesso às senhas escritas nele
 del "%~dp0config\config.txt"
+del "%~dp0config\MR"
+
 rundll32.exe user32.dll,LockWorkStation
+
+IF EXIST "%~dp0fix-setup.cmd" (
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALAÇÃO^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consertá-los^ execute,^ sem^ privilégio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALAÇÃO^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consertá-los^ execute,^ sem^ privilégio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALAÇÃO^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consertá-los^ execute,^ sem^ privilégio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+)
 pause
+exit
