@@ -1,9 +1,9 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::           SCRIPT DE CONFIGURA√á√ÉO DO WINDOWS                 ::
+::           SCRIPT DE CONFIGURA«√O DO WINDOWS                 ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Automaticamente checar e obter privil√©gios de Admin ::
+:: Automaticamente checar e obter privilÈgios de Admin ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @ECHO off
 CLS
@@ -37,7 +37,7 @@ cd /d %~dp0
 if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 
 ::::::::::::::::::::::::::::::
-::     COME√áO DO SCRIPT     ::
+::     COME«O DO SCRIPT     ::
 ::::::::::::::::::::::::::::::
 
 :: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
@@ -48,17 +48,17 @@ set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 set ui_xaml_appx=Microsoft.UI.Xaml.2.7.x64.appx
 set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
 
-:: Defini√ß√£o de vari√°veis a partir do arquivo config.txt
+:: DefiniÁ„o de vari·veis a partir do arquivo config.txt
 FOR /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) DO ( set %%V )
 
-:: Verifica√ß√£o do nome do computador
+:: VerificaÁ„o do nome do computador
 ver > nul
 IF %renomear_maquina%==sempre (
 	IF NOT EXIST "%~dp0config\MR" (
-		ECHO Nome^ do^ computador^ n√£o^ est√°^ de^ acordo^ com^ o^ padr√£o^ requerido.
+		ECHO Nome^ do^ computador^ n„o^ est·^ de^ acordo^ com^ o^ padr„o^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
-		ECHO M√°quina^ renomeada > "%~dp0config\MR"
-		ECHO Esse^ script^ ser√°^ interrompido^ e^ a^ m√°quina^ ser√°^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ pr√≥xima^ sess√£o^ ap√≥s^ confirmar^ que^ o^ nome^ do^ computador^ est√°^ no^ padr√£o^ requerido
+		ECHO M·quina^ renomeada > "%~dp0config\MR"
+		ECHO Esse^ script^ ser·^ interrompido^ e^ a^ m·quina^ ser·^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ prÛxima^ sess„o^ apÛs^ confirmar^ que^ o^ nome^ do^ computador^ est·^ no^ padr„o^ requerido
 		shutdown /r /t 30
 		pause
 		exit
@@ -66,17 +66,17 @@ IF %renomear_maquina%==sempre (
 ) ELSE IF %renomear_maquina%==verificar (
 	ECHO %computername% | findstr "%padrao_nome_maquina%" > nul
 	IF NOT '!ERRORLEVEL!' == '0' (
-		ECHO Nome^ do^ computador^ n√£o^ est√°^ de^ acordo^ com^ o^ padr√£o^ requerido.
+		ECHO Nome^ do^ computador^ n„o^ est·^ de^ acordo^ com^ o^ padr„o^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
-		ECHO Esse^ script^ ser√°^ interrompido^ e^ a^ m√°quina^ ser√°^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ pr√≥xima^ sess√£o^ ap√≥s^ confirmar^ que^ o^ nome^ do^ computador^ est√°^ no^ padr√£o^ requerido
+		ECHO Esse^ script^ ser·^ interrompido^ e^ a^ m·quina^ ser·^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ prÛxima^ sess„o^ apÛs^ confirmar^ que^ o^ nome^ do^ computador^ est·^ no^ padr„o^ requerido
 		shutdown /r /t 30
 		pause
 		exit
 	)
 ) ELSE IF %renomear_maquina%==ignorar (
-	ECHO Ignorando^ verifica√ß√£o^ de^ nome^ de^ m√°quina.
+	ECHO Ignorando^ verificaÁ„o^ de^ nome^ de^ m·quina.
 ) ELSE (
-	ECHO Par√¢metro^ "renomear_maquina"^ n√£o^ reconhecido.
+	ECHO Par‚metro^ "renomear_maquina"^ n„o^ reconhecido.
 	pause
 	exit
 )
@@ -86,7 +86,7 @@ IF NOT '%1' == 'programas-manuais-instalados' (
 	FOR %%F IN ( "%~dp0Files\*.msi" ) DO ( "%%F" )
 )
 
-:: verificar se winget est√° instalado e, se n√£o, instal√°-lo e relan√ßar o script:
+:: verificar se winget est· instalado e, se n„o, instal·-lo e relanÁar o script:
 ver > nul
 where winget
 CLS
@@ -121,7 +121,7 @@ IF '%ERRORLEVEL%' == '1' (
 	exit
 )
 
-:: instala√ß√£o de programas via winget
+:: instalaÁ„o de programas via winget
 winget list --accept-source-agreements > nul
 ver > nul
 ECHO Instalando^ programas^ via^ winget...
@@ -136,22 +136,22 @@ FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V
 			set first_winget_install=done
 		)
 	) ELSE (
-		ECHO %%P^ j√° est√° instalado!
+		ECHO %%P^ j· est· instalado!
 	)
 	IF NOT '!errorlevel!' == '0' ( 
-		ECHO Falha^ na^ instala√ß√£o^ de^ %%P!
+		ECHO Falha^ na^ instalaÁ„o^ de^ %%P!
 		ECHO winget^ install^ --force^ %%P >> "%~dp0fix-setup.cmd" 
 	)
 	CLS
 )
 
 ECHO Copiando^ atalhos...
-:: copiar atalhos de URL para a √°rea de trabalho e para o Menu Iniciar
+:: copiar atalhos de URL para a ·rea de trabalho e para o Menu Iniciar
 FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" > nul )
 FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%userprofile%\Desktop\" > nul )
 
 ECHO Aplicando^ papel^ de^ parede^ e^ tela^ de^ bloqueio...
-:: PERMITIR EXECU√á√ÉO DOS SCRIPTS DE POWERSHELL
+:: PERMITIR EXECU«√O DOS SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy unrestricted
 
 :: Aplicar papel de parede
@@ -160,7 +160,7 @@ powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" %wallpaperPath%
 :: Aplicar tela de bloqueio
 powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
 
-:: RESTRINGIR EXECU√á√ÉO DE SCRIPTS DE POWERSHELL
+:: RESTRINGIR EXECU«√O DE SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy restricted
 
 ECHO Desabilitando^ OneDrive...
@@ -173,15 +173,15 @@ ECHO Desabilitando^ Teams...
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 
-ECHO Desabilitando^ servi√ßo^ de^ hotspot...
-:: desabilitar servi√ßo de hostpot
+ECHO Desabilitando^ serviÁo^ de^ hotspot...
+:: desabilitar serviÁo de hostpot
 sc config icssvc start=disabled > nul 2>>errorlog.txt
 
 :: desabilitar programas da Samsung em modelos 550X*
 ver > nul
 wmic computersystem get model | findstr "550X" > nul
 IF '%ERRORLEVEL%' == '0' (
-	ECHO Desabilitando^ servi√ßos^ da^ Samsung...
+	ECHO Desabilitando^ serviÁos^ da^ Samsung...
 	sc config SamsungPlatformEngine start=disabled
 	sc config SamsungSecuritySupportService start=disabled
 	sc config SamsungSystemSupportService start=disabled
@@ -191,26 +191,32 @@ IF '%ERRORLEVEL%' == '0' (
 	CLS
 )
 
-:: cria√ß√£o de usu√°rios Super e Suporte
-ECHO Criando^ usu√°rios^ administradores...
+:: criaÁ„o de usu·rios Super e Suporte
+ECHO Criando^ usu·rios^ administradores...
 net user super /add > nul 2>>errorlog.txt
 net user suporte /add > nul 2>>errorlog.txt
 
-:: defini√ß√£o de senhas de usu√°rios Super e Suporte
+:: definiÁ„o de senhas de usu·rios Super e Suporte
 net user super %senha_super% > nul 2>>errorlog.txt
 net user suporte %senha_suporte% > nul 2>>errorlog.txt
 
-:: remover expira√ß√£o de senha dos usu√°rios - usu√°rios criados pelo Rufus e pelo comando acima t√™m uma senha com prazo e ap√≥s esse prazo o sistema pede por uma nova senha que seria escolhida pelo usu√°rio
+:: remover expiraÁ„o de senha dos usu·rios - usu·rios criados pelo Rufus e pelo comando acima tÍm uma senha com prazo e apÛs esse prazo o sistema pede por uma nova senha que seria escolhida pelo usu·rio
 wmic UserAccount where Name='super' set PasswordExpires=false > nul 2>>errorlog.txt
 wmic UserAccount where Name='suporte' set PasswordExpires=false > nul 2>>errorlog.txt
-wmic UserAccount where Name=%usuario% set PasswordExpires=false > nul 2>>errorlog.txt
+wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 
-:: conceder/remover privil√©gios de admin dos usu√°rios
+:: conceder/remover privilÈgios de admin dos usu·rios
 net localgroup Administradores super /add > nul 2>>errorlog.txt
 net localgroup Administradores suporte /add > nul 2>>errorlog.txt
-net localgroup Administradores %usuario% /delete > nul 2>>errorlog.txt
+net localgroup Administradores "%username%" /delete > nul 2>>errorlog.txt
+:: usu·rio padr„o some se n„o estiver no grupo "Usu·rios"
+ver > nul
+net localgroup Usu·rios | find "%username%"
+IF NOT '%errorlevel%' == '0' (
+	net localgroup Usu·rios "%username%" /add > nul 2>>errorlog.txt
+)
 
-:: o script pausa antes de fechar o cmd e deleta o arquivo de configura√ß√£o para que usu√°rios n√£o tenham acesso √†s senhas escritas nele
+:: o script pausa antes de fechar o cmd e deleta o arquivo de configuraÁ„o para que usu·rios n„o tenham acesso ‡s senhas escritas nele
 del "%~dp0config\config.txt"
 del "%~dp0config\MR"
 
@@ -218,14 +224,14 @@ rundll32.exe user32.dll,LockWorkStation > nul 2>>errorlog.txt
 
 IF EXIST "%~dp0fix-setup.cmd" (
 ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA√á√ÉO^ DE^ PROGRAMAS^ VIA^ WINGET.
-ECHO ::^ Para^ consert√°-los^ execute,^ sem^ privil√©gio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA«√O^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consert·-los^ execute,^ sem^ privilÈgio^ de^ administrador^ o^ script^ fix-setup.cmd
 ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA√á√ÉO^ DE^ PROGRAMAS^ VIA^ WINGET.
-ECHO ::^ Para^ consert√°-los^ execute,^ sem^ privil√©gio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA«√O^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consert·-los^ execute,^ sem^ privilÈgio^ de^ administrador^ o^ script^ fix-setup.cmd
 ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA√á√ÉO^ DE^ PROGRAMAS^ VIA^ WINGET.
-ECHO ::^ Para^ consert√°-los^ execute,^ sem^ privil√©gio^ de^ administrador^ o^ script^ fix-setup.cmd
+ECHO ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA«√O^ DE^ PROGRAMAS^ VIA^ WINGET.
+ECHO ::^ Para^ consert·-los^ execute,^ sem^ privilÈgio^ de^ administrador^ o^ script^ fix-setup.cmd
 ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 )
 pause
