@@ -56,7 +56,7 @@ ver > nul
 IF %renomear_maquina%==sempre (
 	IF NOT EXIST "%~dp0config\MR" (
 		ECHO Nome^ do^ computador^ não^ está^ de^ acordo^ com^ o^ padrão^ requerido.
-		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
+		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		ECHO Máquina^ renomeada > "%~dp0config\MR"
 		ECHO Esse^ script^ será^ interrompido^ e^ a^ máquina^ será^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ próxima^ sessão^ após^ confirmar^ que^ o^ nome^ do^ computador^ está^ no^ padrão^ requerido
 		shutdown /r /t 30
@@ -67,7 +67,7 @@ IF %renomear_maquina%==sempre (
 	ECHO %computername% | findstr "%padrao_nome_maquina%" > nul
 	IF NOT '!ERRORLEVEL!' == '0' (
 		ECHO Nome^ do^ computador^ não^ está^ de^ acordo^ com^ o^ padrão^ requerido.
-		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina%
+		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		ECHO Esse^ script^ será^ interrompido^ e^ a^ máquina^ será^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ próxima^ sessão^ após^ confirmar^ que^ o^ nome^ do^ computador^ está^ no^ padrão^ requerido
 		shutdown /r /t 30
 		pause
@@ -91,27 +91,32 @@ ver > nul
 where winget
 CLS
 IF '%ERRORLEVEL%' == '1' (
-	systeminfo | find "Windows 10"
+	systeminfo | find "Windows 10" > nul
 	IF '!ERRORLEVEL!' == '0' (
 		IF NOT EXIST .\Files\%ui_xaml_appx% ( 
 			ECHO Baixando^ Microsoft.UI.Xaml...
-			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx%
+			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx% 2>>errorlog.txt
 		)
+		CLS
 		IF NOT EXIST .\Files\%vclib_appx% ( 
 			ECHO Baixando^ Microsoft.VCLibs...
-			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx%
+			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx% 2>>errorlog.txt
 		)
-		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx%
-		powershell Add-AppXPackage -Path .\Files\%vclib_appx%
+		CLS
+		ECHO Instalando^ Microsoft.UI.Xaml...
+		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx% 2>>errorlog.txt
+		CLS
+		ECHO Instalando^ Microsoft.VCLibs...
+		powershell Add-AppXPackage -Path .\Files\%vclib_appx% 2>>errorlog.txt
 	)
 	CLS
 	IF NOT EXIST .\Files\%winget_msixbundle% ( 
 		ECHO Baixando^ Microsoft.DesktopAppInstaller...
-		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle%
+		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle% 2>>errorlog.txt
 	)
 	CLS
-	ECHO Instalando^ o^ winget...
-	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle%
+	ECHO Instalando^ Microsoft.DesktopAppInstaller...
+	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle% 2>>errorlog.txt
 	%0 programas-manuais-instalados
 	exit
 )
@@ -140,10 +145,12 @@ FOR /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V
 	CLS
 )
 
+ECHO Copiando^ atalhos...
 :: copiar atalhos de URL para a área de trabalho e para o Menu Iniciar
 FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" > nul )
 FOR %%F IN ( "%~dp0Files\*.url" ) DO ( xcopy /Y "%%F" "%userprofile%\Desktop\" > nul )
 
+ECHO Aplicando^ papel^ de^ parede^ e^ tela^ de^ bloqueio...
 :: PERMITIR EXECUÇÃO DOS SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy unrestricted
 
@@ -156,16 +163,19 @@ powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
 :: RESTRINGIR EXECUÇÃO DE SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy restricted
 
+ECHO Desabilitando^ OneDrive...
 :: desabilitar OneDrive
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v OneDrive /t REG_SZ /d NoOneDrive
 netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out program="C:\ProgramFiles (x86)\Microsoft OneDrive\OneDrive.exe"
 
+ECHO Desabilitando^ Teams...
 :: desabilitar Teams
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 
+ECHO Desabilitando^ serviço^ de^ hotspot...
 :: desabilitar serviço de hostpot
-sc config icssvc start=disabled
+sc config icssvc start=disabled > nul 2>>errorlog.txt
 
 :: desabilitar programas da Samsung em modelos 550X*
 ver > nul
@@ -180,31 +190,31 @@ IF '%ERRORLEVEL%' == '0' (
 	:: powershell Set-Service -Name "SamsungSystemSupportService" -StartupType "disabled"
 	CLS
 )
-@ECHO on
 
 :: criação de usuários Super e Suporte
-net user super /add
-net user suporte /add
+ECHO Criando^ usuários^ administradores...
+net user super /add > nul 2>>errorlog.txt
+net user suporte /add > nul 2>>errorlog.txt
 
 :: definição de senhas de usuários Super e Suporte
-net user super %senha_super%
-net user suporte %senha_suporte%
+net user super %senha_super% > nul 2>>errorlog.txt
+net user suporte %senha_suporte% > nul 2>>errorlog.txt
 
 :: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando acima têm uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
-wmic UserAccount where Name='super' set PasswordExpires=false
-wmic UserAccount where Name='suporte' set PasswordExpires=false
-wmic UserAccount where Name=%usuario% set PasswordExpires=false
+wmic UserAccount where Name='super' set PasswordExpires=false > nul 2>>errorlog.txt
+wmic UserAccount where Name='suporte' set PasswordExpires=false > nul 2>>errorlog.txt
+wmic UserAccount where Name=%usuario% set PasswordExpires=false > nul 2>>errorlog.txt
 
 :: conceder/remover privilégios de admin dos usuários
-net localgroup Administradores super /add
-net localgroup Administradores suporte /add
-net localgroup Administradores %usuario% /delete
+net localgroup Administradores super /add > nul 2>>errorlog.txt
+net localgroup Administradores suporte /add > nul 2>>errorlog.txt
+net localgroup Administradores %usuario% /delete > nul 2>>errorlog.txt
 
 :: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários não tenham acesso às senhas escritas nele
 del "%~dp0config\config.txt"
 del "%~dp0config\MR"
 
-rundll32.exe user32.dll,LockWorkStation
+rundll32.exe user32.dll,LockWorkStation > nul 2>>errorlog.txt
 
 IF EXIST "%~dp0fix-setup.cmd" (
 ECHO :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
