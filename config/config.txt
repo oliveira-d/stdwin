@@ -17,6 +17,16 @@ lockscreenPath="C:\padronizacao-windows\Files\WALLPAPER.jpg"
 :: definição das senhas de usuários
 senha_super=1234
 senha_suporte=1234
+senha=1234
+
+:: configurações do windows - preencher com "sim" ou "nao"
+desabilitar_hotspot=sim
+desabilitar_onedrive=sim
+desabilitar_teams=sim
+desabilitar_suspensao_tomada=sim
+desabilitar_suspensao_bateria=nao
+:: opção cria os usuarios administradores super e suporte e remove os privilégios de administrador do usuario atual
+remover_privilegio_adm=sim
 
 :: endereço para download do winget e dependências
 winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.6.3421/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
