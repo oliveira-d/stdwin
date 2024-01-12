@@ -58,6 +58,7 @@ IF %renomear_maquina%==sempre (
 		ECHO Nome^ do^ computador^ não^ está^ de^ acordo^ com^ o^ padrão^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		ECHO Máquina^ renomeada > "%~dp0config\MR"
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon
 		ECHO Esse^ script^ será^ interrompido^ e^ a^ máquina^ será^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ próxima^ sessão^ após^ confirmar^ que^ o^ nome^ do^ computador^ está^ no^ padrão^ requerido
 		shutdown /r /t 30
 		pause
@@ -68,6 +69,7 @@ IF %renomear_maquina%==sempre (
 	IF NOT '!ERRORLEVEL!' == '0' (
 		ECHO Nome^ do^ computador^ não^ está^ de^ acordo^ com^ o^ padrão^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon
 		ECHO Esse^ script^ será^ interrompido^ e^ a^ máquina^ será^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ próxima^ sessão^ após^ confirmar^ que^ o^ nome^ do^ computador^ está^ no^ padrão^ requerido
 		shutdown /r /t 30
 		pause
@@ -88,9 +90,9 @@ IF NOT '%1' == 'programas-manuais-instalados' (
 
 :: verificar se winget está instalado e, se não, instalá-lo e relançar o script:
 ver > nul
-where winget
+winget list --accept-source-agreements > nul
 CLS
-IF '%ERRORLEVEL%' == '1' (
+IF NOT '%ERRORLEVEL%' == '0' (
 	systeminfo | find "Windows 10" > nul
 	IF '!ERRORLEVEL!' == '0' (
 		IF NOT EXIST .\Files\%ui_xaml_appx% ( 
@@ -120,6 +122,10 @@ IF '%ERRORLEVEL%' == '1' (
 	%0 programas-manuais-instalados
 	exit
 )
+
+:: desabilitar suspensão automática antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
+powercfg /x standby-timeout-ac 0
+powercfg /x standby-timeout-dc 0
 
 :: instalação de programas via winget
 winget list --accept-source-agreements > nul
@@ -219,6 +225,7 @@ IF NOT '%errorlevel%' == '0' (
 :: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários não tenham acesso às senhas escritas nele
 del "%~dp0config\config.txt"
 del "%~dp0config\MR"
+schtasks /delete /tn "WindowsSTDSetup"
 
 rundll32.exe user32.dll,LockWorkStation > nul 2>>errorlog.txt
 
