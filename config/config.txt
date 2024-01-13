@@ -29,6 +29,6 @@ desabilitar_suspensao_bateria=nao
 remover_privilegio_adm=sim
 
 :: endereço para download do winget e dependências
-winget_url=https://github.com/microsoft/winget-cli/releases/download/v1.6.3421/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+winget_url=https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 ms_ui_xaml_url=https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.7.3/Microsoft.UI.Xaml.2.7.x64.appx
 ms_vclib_url=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx
