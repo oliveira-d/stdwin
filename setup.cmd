@@ -1,9 +1,9 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::           SCRIPT DE CONFIGURA��O do WINDOWS                 ::
+::           SCRIPT DE CONFIGURAÇÃO do WINDOWS                 ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Automaticamente checar e obter privil�gios de Admin ::
+:: Automaticamente checar e obter privilégios de Admin ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @echo off
 CLS
@@ -37,29 +37,34 @@ cd /d %~dp0
 if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 
 ::::::::::::::::::::::::::::::
-::     COME�O do SCRIPT     ::
+::     COMEÇO do SCRIPT     ::
 ::::::::::::::::::::::::::::::
 
 :: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
 setlocal EnableDelayedExpansion
-chcp 1252 > nul
+chcp 65001 > nul
 set first_winget_install=done
 set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 set ui_xaml_appx=Microsoft.UI.Xaml.2.7.x64.appx
 set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
 
-:: Defini��o de vari�veis a partir do arquivo config.txt
+:: Definição de variáveis a partir do arquivo config.txt
+if not exist "%~dp0config\config.txt" (
+	echo Arquivo^ config.txt^ nao^ encontrado!
+	pause
+	exit
+)
 for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) do ( set %%V )
 
-:: Verifica��o do nome do computador
+:: Verificação do nome do computador
 ver > nul
 if %renomear_maquina%==sempre (
 	if not exist "%~dp0config\MR" (
-		echo Nome^ do^ computador^ n�o^ est�^ de^ acordo^ com^ o^ padr�o^ requerido.
+		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
-		echo M�quina^ renomeada > "%~dp0config\MR"
+		echo Maquina^ renomeada > "%~dp0config\MR"
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon
-		echo Esse^ script^ ser�^ interrompido^ e^ a^ m�quina^ ser�^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ pr�xima^ sess�o^ ap�s^ confirmar^ que^ o^ nome^ do^ computador^ est�^ no^ padr�o^ requerido
+		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
 		shutdown /r /t 30
 		pause
 		exit
@@ -67,18 +72,18 @@ if %renomear_maquina%==sempre (
 ) else if %renomear_maquina%==verificar (
 	echo %computername% | findstr "%padrao_nome_maquina%" > nul
 	if not '!errorlevel!' == '0' (
-		echo Nome^ do^ computador^ n�o^ est�^ de^ acordo^ com^ o^ padr�o^ requerido.
+		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon
-		echo Esse^ script^ ser�^ interrompido^ e^ a^ m�quina^ ser�^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ pr�xima^ sess�o^ ap�s^ confirmar^ que^ o^ nome^ do^ computador^ est�^ no^ padr�o^ requerido
+		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
 		shutdown /r /t 30
 		pause
 		exit
 	)
 ) else if %renomear_maquina%==ignorar (
-	echo Ignorando^ verifica��o^ de^ nome^ de^ m�quina.
+	echo Ignorando^ verificacaoo^ de^ nome^ de^ maquina.
 ) else (
-	echo Par�metro^ "renomear_maquina"^ n�o^ reconhecido.
+	echo Parametro^ "renomear_maquina"^ nao^ reconhecido.
 	pause
 	exit
 )
@@ -123,7 +128,7 @@ if not '%errorlevel%' == '0' (
 	exit
 )
 
-:: desabilitar suspens�o autom�tica antes de come�ar as instala��es via winget (MS Office demora demais e as vezes o notebook suspende durante a instala��o)
+:: desabilitar suspensao automatica antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
 if '%desabilitar_suspensao_tomada%'=='sim' (
 powercfg /x standby-timeout-ac 0
 )
@@ -131,7 +136,7 @@ if '%desabilitar_suspensao_bateria%'=='sim' (
 powercfg /x standby-timeout-dc 0
 )
 
-:: instala��o de programas via winget
+:: instalação de programas via winget
 winget list --accept-source-agreements > nul
 ver > nul
 echo Instalando^ programas^ via^ winget...
@@ -146,21 +151,21 @@ for /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V
 			set first_winget_install=done
 		)
 	) else (
-		echo %%P^ j� est� instalado!
+		echo %%P^ ja esta instalado!
 	)
 	if not '!errorlevel!' == '0' ( 
-		echo Falha^ na^ instala��o^ de^ %%P!
+		echo Falha^ na^ instalacao^ de^ %%P!
 		echo winget^ install^ --force^ %%P >> "%~dp0fix-setup.cmd" 
 	)
 	CLS
 )
 
 echo Copiando^ atalhos...
-:: copiar atalhos de URL para a �rea de trabalho e para o Menu Iniciar
+:: copiar atalhos de URL para a área de trabalho e para o Menu Iniciar
 for %%F in ( "%~dp0Files\*.url" ) do ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" > nul )
 for %%F in ( "%~dp0Files\*.url" ) do ( xcopy /Y "%%F" "%userprofile%\Desktop\" > nul )
 
-:: PERMITIR EXECU��O DOS SCRIPTS DE POWERSHELL
+:: PERMITIR EXECUÇÃO DOS SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy unrestricted
 
 :: Aplicar papel de parede
@@ -175,7 +180,7 @@ if not '%lockscreenPath%'=='' (
 	powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
 )
 
-:: RESTRINGIR EXECU��O DE SCRIPTS DE POWERSHELL
+:: RESTRINGIR EXECUÇÃO DE SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy restricted
 
 :: desabilitar OneDrive
@@ -195,7 +200,7 @@ if '%desabilitar_teams%'=='sim' (
 
 :: desabilitar servi�o de hostpot
 if '%desabilitar_hotspot%'=='sim' (
-	echo Desabilitando^ servi�o^ de^ hotspot...
+	echo Desabilitando^ servico^ de^ hotspot...
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
 )
 
@@ -203,7 +208,7 @@ if '%desabilitar_hotspot%'=='sim' (
 ver > nul
 wmic computersystem get model | findstr "550X" > nul
 if '%errorlevel%' == '0' (
-	echo Desabilitando^ servi�os^ da^ Samsung...
+	echo Desabilitando^ servicos^ da^ Samsung...
 	sc config SamsungPlatformEngine start=disabled
 	sc config SamsungSecuritySupportService start=disabled
 	sc config SamsungSystemSupportService start=disabled
@@ -213,26 +218,26 @@ if '%errorlevel%' == '0' (
 	CLS
 )
 
-:: cria��o de usu�rios Super e Suporte
+:: criação de usuários Super e Suporte
 if '%remover_privilegio_adm%'=='sim' (
-	echo Criando^ usu�rios^ administradores...
+	echo Criando^ usuarios^ administradores...
 	net user super /add > nul 2>>errorlog.txt
 	net user suporte /add > nul 2>>errorlog.txt
-	:: defini��o de senhas de usu�rios Super e Suporte
+	:: definição de senhas de usuarios Super e Suporte
 	net user super %senha_super% > nul 2>>errorlog.txt
 	net user suporte %senha_suporte% > nul 2>>errorlog.txt
-	:: remover expira��o de senha dos usu�rios - usu�rios criados pelo Rufus e pelo comando acima t�m uma senha com prazo e ap�s esse prazo o sistema pede por uma nova senha que seria escolhida pelo usu�rio
+	:: remover expiração de senha dos usuarios - usuarios criados pelo Rufus e pelo comando acima tem uma senha com prazo e apos esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuario
 	wmic UserAccount where Name='super' set PasswordExpires=false > nul 2>>errorlog.txt
 	wmic UserAccount where Name='suporte' set PasswordExpires=false > nul 2>>errorlog.txt
-	:: conceder/remover privil�gios de admin dos usu�rios
+	:: conceder/remover privilegios de admin dos usuarios
 	net localgroup Administradores super /add > nul 2>>errorlog.txt
 	net localgroup Administradores suporte /add > nul 2>>errorlog.txt
 	net localgroup Administradores "%username%" /delete > nul 2>>errorlog.txt
-	:: usu�rio padr�o some se n�o estiver no grupo "Usu�rios"
+	:: usuario padrao some se nao estiver no grupo "Usuarios"
 	ver > nul
-	net localgroup Usu�rios | find "%username%"
+	net localgroup Usuários | find "%username%"
 	if not '%errorlevel%' == '0' (
-		net localgroup Usu�rios "%username%" /add > nul 2>>errorlog.txt
+		net localgroup Usuários "%username%" /add > nul 2>>errorlog.txt
 	)
 )
 
@@ -240,27 +245,29 @@ if not '%senha'=='' (
 	net user "%username%" %senha% > nul 2>>errorlog.txt
 )
 
-:: remover expira��o de senha dos usu�rios - usu�rios criados pelo Rufus e pelo comando "net user" t�m uma senha com prazo e ap�s esse prazo o sistema pede por uma nova senha que seria escolhida pelo usu�rio
+:: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
 wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 
-:: o script pausa antes de fechar o cmd e deleta o arquivo de configura��o para que usu�rios n�o tenham acesso �s senhas escritas nele
+:: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários n�o tenham acesso às senhas escritas nele
 del "%~dp0config\config.txt"
-del "%~dp0config\MR"
-schtasks /delete /tn "WindowsSTDSetup"
+if exist "%~dp0config\MR" (
+	del "%~dp0config\MR"
+)
+schtasks /delete /tn "WindowsSTDSetup" /f
 
 rundll32.exe user32.dll,LockWorkStation > nul 2>>errorlog.txt
 
 if exist "%~dp0fix-setup.cmd" (
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ forAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA��O^ DE^ PROGRAMAS^ VIA^ WINGET.
-echo ::^ Para^ consert�-los^ execute,^ sem^ privil�gio^ de^ administrador^ o^ script^ fix-setup.cmd
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ forAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA��O^ DE^ PROGRAMAS^ VIA^ WINGET.
-echo ::^ Para^ consert�-los^ execute,^ sem^ privil�gio^ de^ administrador^ o^ script^ fix-setup.cmd
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ forAM^ ENCONTRADOS^ DURANTE^ A^ INSTALA��O^ DE^ PROGRAMAS^ VIA^ WINGET.
-echo ::^ Para^ consert�-los^ execute,^ sem^ privil�gio^ de^ administrador^ o^ script^ fix-setup.cmd
-echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
+echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
+echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
+echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 )
 pause
 exit
