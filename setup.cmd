@@ -63,7 +63,7 @@ if %renomear_maquina%==sempre (
 		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		echo Maquina^ renomeada > "%~dp0config\MR"
-		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
 		shutdown /r /t 30
 		pause
@@ -74,7 +74,7 @@ if %renomear_maquina%==sempre (
 	if not '!errorlevel!' == '0' (
 		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
-		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
 		shutdown /r /t 30
 		pause
@@ -129,10 +129,10 @@ if not '%errorlevel%' == '0' (
 )
 
 :: desabilitar suspensao automatica antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
-if '%desabilitar_suspensao_tomada%'=='sim' (
+if "%desabilitar_suspensao_tomada%" == "sim" (
 powercfg /x standby-timeout-ac 0
 )
-if '%desabilitar_suspensao_bateria%'=='sim' (
+if "%desabilitar_suspensao_bateria%" == "sim" (
 powercfg /x standby-timeout-dc 0
 )
 
@@ -169,13 +169,13 @@ for %%F in ( "%~dp0Files\*.url" ) do ( xcopy /Y "%%F" "%userprofile%\Desktop\" >
 powershell Set-ExecutionPolicy unrestricted
 
 :: Aplicar papel de parede
-if not '%wallpaperPath%'=='' (
+if not "%wallpaperPath%" == "" (
 	echo Aplicando^ papel^ de^ parede...
 	powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" %wallpaperPath%
 )
 
 :: Aplicar tela de bloqueio
-if not '%lockscreenPath%'=='' (
+if not "%lockscreenPath%" == "" (
 	echo Aplicando^ tela^ de^ bloqueio...
 	powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
 )
@@ -184,7 +184,7 @@ if not '%lockscreenPath%'=='' (
 powershell Set-ExecutionPolicy restricted
 
 :: desabilitar OneDrive
-if '%desabilitar_onedrive%'=='sim' (
+if "%desabilitar_onedrive%" == "sim" (
 	echo Desabilitando^ OneDrive...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v OneDrive /t REG_SZ /d NoOneDrive
 	netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out program="C:\ProgramFiles (x86)\Microsoft OneDrive\OneDrive.exe"
@@ -192,14 +192,14 @@ if '%desabilitar_onedrive%'=='sim' (
 
 
 :: desabilitar Teams
-if '%desabilitar_teams%'=='sim' (
+if "%desabilitar_teams%" == "sim" (
 	echo Desabilitando^ Teams...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 	reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 )
 
-:: desabilitar servi�o de hostpot
-if '%desabilitar_hotspot%'=='sim' (
+:: desabilitar serviço de hostpot
+if "%desabilitar_hotspot%" == "sim" (
 	echo Desabilitando^ servico^ de^ hotspot...
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
 )
@@ -219,7 +219,7 @@ if '%errorlevel%' == '0' (
 )
 
 :: criação de usuários Super e Suporte
-if '%remover_privilegio_adm%'=='sim' (
+if "%remover_privilegio_adm%" == "sim" (
 	echo Criando^ usuarios^ administradores...
 	net user super /add > nul 2>>errorlog.txt
 	net user suporte /add > nul 2>>errorlog.txt
@@ -241,7 +241,7 @@ if '%remover_privilegio_adm%'=='sim' (
 	)
 )
 
-if not '%senha'=='' (
+if not "%senha" == "" (
 	net user "%username%" %senha% > nul 2>>errorlog.txt
 )
 
