@@ -2,7 +2,7 @@
 :: linhas que começam com :: são comentários e são ignoradas pelo script
 :: Preste atenção em quais parâmetros existem aspas e quais não
 
-usuario="Nome de Usuario"
+usuario_padrao="Nome de Usuario"
 
 :: definir o padrão de nome da máquina. Ex: nos nomes BEEP-0123 ou BEEP-9999 o padrão definido é BEEP
 padrao_nome_maquina=BEEP
