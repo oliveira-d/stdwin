@@ -10,7 +10,7 @@ INSTRUÇÕES DE USO:
 
 * Dica: para agilizar a instalação do Windows e criação do usuário, utilize o Rufus para a gravação do pendrive e configure as opções desejadas como nome do usuário e configurações de região e idioma.
 
-* CONFIGURAÇÃO DO SCRIPT:
+CONFIGURAÇÃO DO SCRIPT:
 - Arquivos de configurações estão localizados na pasta config
 
 Pasta Files:
