@@ -129,11 +129,11 @@ if not '%errorlevel%' == '0' (
 )
 
 :: desabilitar suspensao automatica antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
-if "%desabilitar_suspensao_tomada%" == "sim" (
-powercfg /x standby-timeout-ac 0
+if "%desabilitar_suspensao_tomada%" == "sim " (
+	powercfg /x standby-timeout-ac 0
 )
-if "%desabilitar_suspensao_bateria%" == "sim" (
-powercfg /x standby-timeout-dc 0
+if "%desabilitar_suspensao_bateria%" == "sim " (
+	powercfg /x standby-timeout-dc 0
 )
 
 :: instalação de programas via winget
@@ -169,13 +169,13 @@ for %%F in ( "%~dp0Files\*.url" ) do ( xcopy /Y "%%F" "%userprofile%\Desktop\" >
 powershell Set-ExecutionPolicy unrestricted
 
 :: Aplicar papel de parede
-if not "%wallpaperPath%" == "" (
+if not "%wallpaperPath%" == " " (
 	echo Aplicando^ papel^ de^ parede...
 	powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" %wallpaperPath%
 )
 
 :: Aplicar tela de bloqueio
-if not "%lockscreenPath%" == "" (
+if not "%lockscreenPath%" == " " (
 	echo Aplicando^ tela^ de^ bloqueio...
 	powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
 )
@@ -184,7 +184,7 @@ if not "%lockscreenPath%" == "" (
 powershell Set-ExecutionPolicy restricted
 
 :: desabilitar OneDrive
-if "%desabilitar_onedrive%" == "sim" (
+if "%desabilitar_onedrive%" == "sim " (
 	echo Desabilitando^ OneDrive...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v OneDrive /t REG_SZ /d NoOneDrive
 	netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out program="C:\ProgramFiles (x86)\Microsoft OneDrive\OneDrive.exe"
@@ -192,14 +192,14 @@ if "%desabilitar_onedrive%" == "sim" (
 
 
 :: desabilitar Teams
-if "%desabilitar_teams%" == "sim" (
+if "%desabilitar_teams%" == "sim " (
 	echo Desabilitando^ Teams...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 	reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 )
 
 :: desabilitar serviço de hostpot
-if "%desabilitar_hotspot%" == "sim" (
+if "%desabilitar_hotspot%" == "sim " (
 	echo Desabilitando^ servico^ de^ hotspot...
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
 )
@@ -219,7 +219,7 @@ if '%errorlevel%' == '0' (
 )
 
 :: criação de usuários Super e Suporte
-if "%remover_privilegio_adm%" == "sim" (
+if "%remover_privilegio_adm%" == "sim " (
 	echo Criando^ usuarios^ administradores...
 	net user super /add > nul 2>>errorlog.txt
 	net user suporte /add > nul 2>>errorlog.txt
@@ -241,7 +241,7 @@ if "%remover_privilegio_adm%" == "sim" (
 	)
 )
 
-if not "%senha" == "" (
+if not "%senha" == " " (
 	net user "%username%" %senha% > nul 2>>errorlog.txt
 )
 
@@ -253,21 +253,22 @@ del "%~dp0config\config.txt"
 if exist "%~dp0config\MR" (
 	del "%~dp0config\MR"
 )
+del /q "%~dp0temp\*"
 schtasks /delete /tn "WindowsSTDSetup" /f
 
 rundll32.exe user32.dll,LockWorkStation > nul 2>>errorlog.txt
 
 if exist "%~dp0fix-setup.cmd" (
-echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
-echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
-echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
-echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
-echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
-echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
-echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
+	echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
+	echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
+	echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 )
 pause
 exit
