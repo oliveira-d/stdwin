@@ -108,30 +108,30 @@ CLS
 if not '%errorlevel%' == '0' (
 	systeminfo | find "Windows 10" > nul
 	if '!errorlevel!' == '0' (
-		if not exist .\Files\%ui_xaml_appx% ( 
+		if not exist .\temp\%ui_xaml_appx% ( 
 			echo Baixando^ Microsoft.UI.Xaml...
-			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\Files\%ui_xaml_appx% 2>>errorlog.txt
+			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\temp\%ui_xaml_appx% 2>>errorlog.txt
 		)
 		CLS
-		if not exist .\Files\%vclib_appx% ( 
+		if not exist .\temp\%vclib_appx% ( 
 			echo Baixando^ Microsoft.VCLibs...
-			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\Files\%vclib_appx% 2>>errorlog.txt
+			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\temp\%vclib_appx% 2>>errorlog.txt
 		)
 		CLS
 		echo Instalando^ Microsoft.UI.Xaml...
-		powershell Add-AppXPackage -Path .\Files\%ui_xaml_appx% 2>>errorlog.txt
+		powershell Add-AppXPackage -Path .\temp\%ui_xaml_appx% 2>>errorlog.txt
 		CLS
 		echo Instalando^ Microsoft.VCLibs...
-		powershell Add-AppXPackage -Path .\Files\%vclib_appx% 2>>errorlog.txt
+		powershell Add-AppXPackage -Path .\temp\%vclib_appx% 2>>errorlog.txt
 	)
 	CLS
-	if not exist .\Files\%winget_msixbundle% ( 
+	if not exist .\temp\%winget_msixbundle% ( 
 		echo Baixando^ Microsoft.DesktopAppInstaller...
-		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\Files\%winget_msixbundle% 2>>errorlog.txt
+		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\temp\%winget_msixbundle% 2>>errorlog.txt
 	)
 	CLS
 	echo Instalando^ Microsoft.DesktopAppInstaller...
-	powershell Add-AppXPackage -Path .\Files\%winget_msixbundle% 2>>errorlog.txt
+	powershell Add-AppXPackage -Path .\temp\%winget_msixbundle% 2>>errorlog.txt
 	%0 programas-manuais-instalados
 	exit
 )
