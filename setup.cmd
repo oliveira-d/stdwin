@@ -56,23 +56,29 @@ if not exist "%~dp0config\config.txt" (
 )
 for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) do ( set %%V )
 
-if "%1" == "/renew" (
-	net user %usuario_padrao% /delete
-	net user %usuario_padrao% /add
-	net localgroup Administradores %usuario_padrao% /add
-	shutdown /l
-)
-
 :: Verificação do nome do computador
 ver > nul
 if %renomear_maquina%==sempre (
 	if not exist "%~dp0config\MR" (
-		goto :renameComputer
+		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
+		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
+		echo Maquina^ renomeada > "%~dp0config\MR"
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00
+		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
+		shutdown /r /t 30
+		pause
+		exit
 	)
 ) else if %renomear_maquina%==verificar (
 	echo %computername% | findstr "%padrao_nome_maquina%" > nul
 	if not '!errorlevel!' == '0' (
-		goto :renameComputer
+		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
+		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00
+		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
+		shutdown /r /t 30
+		pause
+		exit
 	)
 ) else if %renomear_maquina%==ignorar (
 	echo Ignorando^ verificacaoo^ de^ nome^ de^ maquina.
@@ -265,14 +271,4 @@ if exist "%~dp0fix-setup.cmd" (
 	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 )
 pause
-exit /b
-
-:renameComputer
-	echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
-	"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
-	echo Maquina^ renomeada > "%~dp0config\MR"
-	schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
-	echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
-	shutdown /r /t 30
-	pause
-	exit /b
+exit
