@@ -8,7 +8,7 @@ usuario_padrao="Beep Saude"
 padrao_nome_maquina=BEEP
 
 :: a variável abaixo pode ser usada pra fazer o script sempre forçar renomear a máquina, renomear só quando detectar fora do padrão OU ignorar completamente. Os valores possíveis são respectivamente: sempre, verificar, ignorar
-renomear_maquina=sempre
+renomear_maquina=verificar
 
 :: caminho para o papel de parede e tela de bloqueio
 wallpaperFileName=WALLPAPER.png
@@ -27,6 +27,10 @@ remover_privilegio_adm=sim
 senha_super=1234
 senha_suporte=1234
 senha=1234
+
+:: configuração de idioma
+users_group=Usuários
+admin_group=Administradores
 
 :: endereço para download do winget e dependências
 winget_url=https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle

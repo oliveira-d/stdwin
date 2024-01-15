@@ -60,7 +60,7 @@ for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V
 if "%1" == "/renew" (
 	net user "%usuario_padrao%" /delete
 	net user "%usuario_padrão%" /add
-	net localgroup Administradores "%usuario_padrao%" /add
+	net localgroup %admin_group% "%usuario_padrao%" /add
 	shutdown /l
 )
 
@@ -235,14 +235,14 @@ if "%remover_privilegio_adm%" == "sim " (
 	wmic UserAccount where Name='super' set PasswordExpires=false > nul 2>>errorlog.txt
 	wmic UserAccount where Name='suporte' set PasswordExpires=false > nul 2>>errorlog.txt
 	:: conceder/remover privilegios de admin dos usuarios
-	net localgroup Administradores super /add > nul 2>>errorlog.txt
-	net localgroup Administradores suporte /add > nul 2>>errorlog.txt
-	net localgroup Administradores "%username%" /delete > nul 2>>errorlog.txt
+	net localgroup %admin_group% super /add > nul 2>>errorlog.txt
+	net localgroup %admin_group% suporte /add > nul 2>>errorlog.txt
+	net localgroup %admin_group% "%username%" /delete > nul 2>>errorlog.txt
 	:: usuario padrao some se nao estiver no grupo "Usuarios"
 	ver > nul
-	net localgroup Usuários | find "%username%"
+	net localgroup %users_group% | find "%username%"
 	if not '%errorlevel%' == '0' (
-		net localgroup Usuários "%username%" /add > nul 2>>errorlog.txt
+		net localgroup %users_group% "%username%" /add > nul 2>>errorlog.txt
 	)
 )
 
