@@ -11,8 +11,8 @@ padrao_nome_maquina=BEEP
 renomear_maquina=sempre
 
 :: caminho para o papel de parede e tela de bloqueio
-wallpaperFileName=WALLPAPER.jpg
-lockscreenFileName=WALLPAPER.jpg
+wallpaperFileName=WALLPAPER.png
+lockscreenFileName=WALLPAPER.png
 
 :: configurações do windows - preencher com "sim" ou "nao"
 desabilitar_hotspot=sim
