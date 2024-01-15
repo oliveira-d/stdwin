@@ -89,7 +89,7 @@ if %renomear_maquina%==sempre (
 		exit
 	)
 ) else if %renomear_maquina%==ignorar (
-	echo Ignorando^ verificacaoo^ de^ nome^ de^ maquina.
+	echo Ignorando^ verificacao^ de^ nome^ de^ maquina.
 ) else (
 	echo Parametro^ "renomear_maquina"^ nao^ reconhecido.
 	pause
@@ -220,9 +220,6 @@ if '%errorlevel%' == '0' (
 	sc config SamsungPlatformEngine start=disabled
 	sc config SamsungSecuritySupportService start=disabled
 	sc config SamsungSystemSupportService start=disabled
-	:: powershell Set-Service -Name "SamsungPlatformEngine" -StartupType "disabled"
-	:: powershell Set-Service -Name "SamsungSecuritySupportService" -StartupType "disabled"
-	:: powershell Set-Service -Name "SamsungSystemSupportService" -StartupType "disabled"
 	CLS
 )
 
