@@ -56,14 +56,6 @@ if not exist "%~dp0config\config.txt" (
 )
 for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) do ( set %%V )
 
-:: deletar usuario antigo e criar novo
-if "%1" == "/renew" (
-	net user "%usuario_padrao%" /delete
-	net user "%usuario_padrão%" /add
-	net localgroup %admin_group% "%usuario_padrao%" /add
-	shutdown /l
-)
-
 :: Verificação do nome do computador
 ver > nul
 if %renomear_maquina%==sempre (
