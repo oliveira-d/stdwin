@@ -58,9 +58,9 @@ for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V
 
 :: deletar usuario antigo e criar novo
 if "%1" == "/renew" (
-	net user %usuario_padrao% /delete
-	net user %usuario_padrão% /add
-	net localgroup Administradores %usuario_padrao% /add
+	net user "%usuario_padrao%" /delete
+	net user "%usuario_padrão%" /add
+	net localgroup Administradores "%usuario_padrao%" /add
 	shutdown /l
 )
 
