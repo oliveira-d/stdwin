@@ -204,17 +204,6 @@ if "%desabilitar_hotspot%" == "sim " (
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
 )
 
-:: desabilitar programas da Samsung em modelos 550X*
-ver > nul
-wmic computersystem get model | findstr "550X" > nul
-if '%errorlevel%' == '0' (
-	echo Desabilitando^ servicos^ da^ Samsung...
-	sc config SamsungPlatformEngine start=disabled
-	sc config SamsungSecuritySupportService start=disabled
-	sc config SamsungSystemSupportService start=disabled
-	CLS
-)
-
 :: criação de usuários Super e Suporte
 if "%remover_privilegio_adm%" == "sim " (
 	echo Criando^ usuarios^ administradores...
