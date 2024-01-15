@@ -171,13 +171,13 @@ powershell Set-ExecutionPolicy unrestricted
 :: Aplicar papel de parede
 if not "%wallpaperPath%" == " " (
 	echo Aplicando^ papel^ de^ parede...
-	powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" %wallpaperPath%
+	powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" "%~dp0Files\%wallpaperFileName%"
 )
 
 :: Aplicar tela de bloqueio
 if not "%lockscreenPath%" == " " (
 	echo Aplicando^ tela^ de^ bloqueio...
-	powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" %lockscreenPath%
+	powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" "%~dp0Files\%lockscreenFileName%"
 )
 
 :: RESTRINGIR EXECUÇÃO DE SCRIPTS DE POWERSHELL
