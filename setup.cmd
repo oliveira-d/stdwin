@@ -71,7 +71,7 @@ if %renomear_maquina%==sempre (
 		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		echo Maquina^ renomeada > "%~dp0config\MR"
-		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
 		shutdown /r /t 30
 		pause
@@ -82,7 +82,7 @@ if %renomear_maquina%==sempre (
 	if not '!errorlevel!' == '0' (
 		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
-		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00
+		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
 		shutdown /r /t 30
 		pause
