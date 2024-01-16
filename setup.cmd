@@ -89,7 +89,7 @@ if %renomear_maquina%==sempre (
 )
 
 if not '%1' == 'programas-manuais-instalados' (
-	for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" )
+	for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" /S )
 	for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
 )
 
