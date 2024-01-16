@@ -65,6 +65,8 @@ if %renomear_maquina%==sempre (
 		echo Maquina^ renomeada > "%~dp0config\MR"
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
+		:: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
+		wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 		shutdown /r /t 30
 		pause
 		exit
@@ -76,6 +78,8 @@ if %renomear_maquina%==sempre (
 		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
+		:: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
+		wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 		shutdown /r /t 30
 		pause
 		exit
@@ -234,9 +238,6 @@ if "%remover_privilegio_adm%" == "sim " (
 if not "%senha" == " " (
 	net user "%username%" %senha% > nul 2>>errorlog.txt
 )
-
-:: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
-wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 
 :: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários n�o tenham acesso às senhas escritas nele
 del "%~dp0config\config.txt"
