@@ -1,8 +1,8 @@
 Script em batch para padronização de sistemas Windows 11 e 10.
 
 INSTRUÇÕES DE USO: 
-1) Instale o Windows com o usuário padrão ("Beep Saude" ou outro) como administrador (único usuário do sistema) - esse deve ser o usuário 
-2) Copie a pasta "padronizacao-windows" para o destino C:\
+1) Instale o Windows com o usuário padrão ("Beep Saude" ou outro) como administrador (único usuário do sistema) 
+2) Copie a pasta para o destino C:\ (opcional)
 3) Execute o script setup.cmd
 4) Caso o script esteja configurado para renomear o computador ele irá reiniciar e, se estiver ligado à tomada, se reexecutar automaticamente em 1 minuto após o login caso a máquina esteja ligada à tomada.
 5) Caso ocorra falha na instalação de algum dos aplicativos via winget, um arquivo chamado fix-setup.cmd será criado, podendo ser usado para corrigir ou investigar o problema.
@@ -10,7 +10,7 @@ INSTRUÇÕES DE USO:
 
 * Dica: para agilizar a instalação do Windows e criação do usuário, utilize o Rufus para a gravação do pendrive e configure as opções desejadas como nome do usuário e configurações de região e idioma.
 
-CONFIGURAÇÃO DO SCRIPT:
+Pasta config:
 - Arquivos de configuração estão localizados na pasta config
 
 Pasta Files:
