@@ -1,10 +1,8 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::           SCRIPT DE CONFIGURAÇÃO do WINDOWS                 ::
+::              WINDOWS CONFIGURATION SCRIPT                   ::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Automaticamente checar e obter privilégios de Admin ::
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: Automatically check and get admin privilege
 @echo off
 CLS
 
@@ -36,9 +34,7 @@ setlocal & pushd .
 cd /d %~dp0
 if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 
-::::::::::::::::::::::::::::::
-::     COMEÇO do SCRIPT     ::
-::::::::::::::::::::::::::::::
+:: start of the script
 
 :: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
 setlocal EnableDelayedExpansion
@@ -48,24 +44,23 @@ set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 set ui_xaml_appx=Microsoft.UI.Xaml.2.7.x64.appx
 set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
 
-:: Definição de variáveis a partir do arquivo config.txt
+:: get variables from config.txt
 if not exist "%~dp0config\config.txt" (
-	echo Arquivo^ config.txt^ no^ encontrado!
+	echo File^ config.txt^ not^ found!
 	pause
 	exit
 )
 for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V "^::"` ) do ( set %%V )
 
-:: Verificação do nome do computador
+:: check and rename computer
 ver > nul
 if %rename_computer%==always (
 	if not exist "%~dp0config\MR" (
-		echo Nome^ do^ computador^ no^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
 		"%~dp0Scripts\renamePC.cmd" %computer_name_pattern% 2>>errorlog.txt
 		echo Maquina^ renomeada > "%~dp0config\MR"
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
-		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
-		:: remover expiração de passwd dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma passwd com prazo e após esse prazo o sistema pede por uma nova passwd que seria escolhida pelo usuário
+		echo This^ script^ will^ be^ interrupted^ and^ the^ computer^ will^ be restarted^ in^ 30^ seconds.^ This^ script^ will^ be^ automatically^ executed^ on^ next^ reboot.
+		:: remove password expiration of the user - users created by Rufus and by net user command have passwordexpires=true
 		wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 		shutdown /r /t 30
 		pause
@@ -74,30 +69,30 @@ if %rename_computer%==always (
 ) else if %rename_computer%==check (
 	echo %computername% | findstr "%computer_name_pattern%" > nul
 	if not '!errorlevel!' == '0' (
-		echo Nome^ do^ computador^ no^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
+		echo Computer^ name^ is^ not^ according^ to^ required^ standard.
 		"%~dp0Scripts\renamePC.cmd" %computer_name_pattern% 2>>errorlog.txt
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
-		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
-		:: remover expiração de passwd dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma passwd com prazo e após esse prazo o sistema pede por uma nova passwd que seria escolhida pelo usuário
+		echo This^ script^ will^ be^ interrupted^ and^ the^ computer^ will^ be restarted^ in^ 30^ seconds.^ This^ script^ will^ be^ automatically^ executed^ on^ next^ reboot.
+		:: remove password expiration of the user - users created by Rufus and by net user command have passwordexpires=true
 		wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 		shutdown /r /t 30
 		pause
 		exit
 	)
 ) else if %rename_computer%==ignore (
-	echo Ignorando^ verificacao^ de^ nome^ de^ maquina.
+	echo Proceeding^ without^ changing^ computer^ name
 ) else (
-	echo Parametro^ "rename_computer"^ no^ reconhecido.
+	echo Parameter^ "rename_computer"^ not^ recognized
 	pause
 	exit
 )
 
-if not '%1' == 'programas-manuais-instalados' (
+if not '%1' == 'skip-exe' (
 	for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" /S )
 	for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
 )
 
-:: check se winget est� instalado e, se n�o, instal�-lo e relan�ar o script:
+:: check if winget is installed and, if not, install it and relaunch script
 ver > nul
 winget list --accept-source-agreements > nul
 CLS
@@ -105,34 +100,34 @@ if not '%errorlevel%' == '0' (
 	systeminfo | find "Windows 10" > nul
 	if '!errorlevel!' == '0' (
 		if not exist .\temp\%ui_xaml_appx% ( 
-			echo Baixando^ Microsoft.UI.Xaml...
+			echo Downloading^ Microsoft.UI.Xaml...
 			powershell Invoke-WebRequest -Uri %ms_ui_xaml_url% -OutFile .\temp\%ui_xaml_appx% 2>>errorlog.txt
 		)
 		CLS
 		if not exist .\temp\%vclib_appx% ( 
-			echo Baixando^ Microsoft.VCLibs...
+			echo Downloading^ Microsoft.VCLibs...
 			powershell Invoke-WebRequest -Uri %ms_vclib_url% -OutFile .\temp\%vclib_appx% 2>>errorlog.txt
 		)
 		CLS
-		echo Instalando^ Microsoft.UI.Xaml...
+		echo Installing^ Microsoft.UI.Xaml...
 		powershell Add-AppXPackage -Path .\temp\%ui_xaml_appx% 2>>errorlog.txt
 		CLS
-		echo Instalando^ Microsoft.VCLibs...
+		echo Installing^ Microsoft.VCLibs...
 		powershell Add-AppXPackage -Path .\temp\%vclib_appx% 2>>errorlog.txt
 	)
 	CLS
 	if not exist .\temp\%winget_msixbundle% ( 
-		echo Baixando^ Microsoft.DesktopAppInstaller...
+		echo Downloading^ Microsoft.DesktopAppInstaller...
 		powershell Invoke-WebRequest -Uri %winget_url% -OutFile .\temp\%winget_msixbundle% 2>>errorlog.txt
 	)
 	CLS
-	echo Instalando^ Microsoft.DesktopAppInstaller...
+	echo Installing^ Microsoft.DesktopAppInstaller...
 	powershell Add-AppXPackage -Path .\temp\%winget_msixbundle% 2>>errorlog.txt
-	%0 programas-manuais-instalados
+	%0 skip-exe
 	exit
 )
 
-:: disable suspensao automatica antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
+:: disable auto suspend before starting winget installations - MS Office, for example, takes too long and computer may suspend during install
 if "%disable_ac_suspend%" == "yes " (
 	powercfg /x standby-timeout-ac 0
 )
@@ -143,11 +138,11 @@ if "%disable_bat_suspend%" == "yes " (
 :: instalação de programas via winget
 winget list --accept-source-agreements > nul
 ver > nul
-echo Instalando^ programas^ via^ winget...
+echo Installing^ software^ via^ winget...
 for /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) do (
 	winget list | find /i "%%P "
 	if '!errorlevel!' == '1' ( 
-		echo Instalando^ %%P...
+		echo Installing^ %%P...
 		if '%first_winget_install%' == 'done' ( 
 		winget install %%P 
 		) else ( 
@@ -155,83 +150,76 @@ for /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V
 			set first_winget_install=done
 		)
 	) else (
-		echo %%P^ ja esta instalado!
+		echo %%P^ already^ installed!
 	)
 	if not '!errorlevel!' == '0' ( 
-		echo Falha^ na^ instalacao^ de^ %%P!
+		echo Failed^ to^ install^ %%P!
 		echo winget^ install^ --force^ %%P >> "%~dp0fix-setup.cmd" 
 	)
 	CLS
 )
 
-echo Copiando^ atalhos...
-:: copiar atalhos de URL para a área de trabalho e para o Menu Iniciar
+:: copy URL shortcuts to Desktop and Start Menu
+echo Copying^ shortcuts...
 for %%F in ( "%~dp0Files\*.url" ) do ( xcopy /Y "%%F" "%appdata%\Microsoft\Windows\Start Menu\Programs\" > nul )
 for %%F in ( "%~dp0Files\*.url" ) do ( xcopy /Y "%%F" "%userprofile%\Desktop\" > nul )
 
-:: PERMITIR EXECUÇÃO DOS SCRIPTS DE POWERSHELL
+:: ALLOW EXECUTION OF POWERSHELL SCRIPTS
 powershell Set-ExecutionPolicy unrestricted
 
-:: Aplicar papel de parede
+:: Apply wallpaper
 if not "%wallpaperPath%" == " " (
 	if exist "%~dp0Files\%wallpaper_file_name%" (
-		echo Aplicando^ papel^ de^ parede...
+		echo Applying^ wallpaper...
 		powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" "%~dp0Files\%wallpaper_file_name%"
 	)
 )
 
-:: Aplicar tela de bloqueio
+:: Apply lockscreen
 if not "%lockscreenPath%" == " " (
 	if exist "%~dp0Files\%lockscreen_file_name%" (
-		echo Aplicando^ tela^ de^ bloqueio...
+		echo Applying^ lockscreen...
 		powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" "%~dp0Files\%lockscreen_file_name%"
 	)
 )
 
-:: RESTRINGIR EXECUÇÃO DE SCRIPTS DE POWERSHELL
+:: RESTRICT EXECUTION OF POWERSHELL SCRIPTS
 powershell Set-ExecutionPolicy restricted
 
 :: disable OneDrive
 if "%disable_onedrive%" == "yes " (
-	echo Desabilitando^ OneDrive...
+	echo Disabling^ OneDrive...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v OneDrive /t REG_SZ /d NoOneDrive
 	netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out program="C:\ProgramFiles (x86)\Microsoft OneDrive\OneDrive.exe"
 )
 
 :: disable Teams
 if "%disable_teams%" == "yes " (
-	echo Desabilitando^ Teams...
+	echo Disabling^ Teams...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 	reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 )
 
 :: disable serviço de hostpot
 if "%disable_hotspot%" == "yes " (
-	echo Desabilitando^ servico^ de^ hotspot...
+	echo Disabling^ hotspot^ service...
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
 )
 
 :: enable windows sandbox
 if "%enable_windows_sandbox" == "yes" (
+	echo Enabling^ Windows^ Sandbox...
 	powershell -command "Enable-WindowsOptionalFeature -FeatureName 'Containers-DisposableClientVM' -All -Online"
 )
 
-:: criação de usuários Super e Suporte
+:: create root user and drop privileges
 if "%drop_admin_privilege%" == "yes " (
-	echo Criando^ usuarios^ administradores...
+	echo Creating^ administrators^ users...
 	net user root /add > nul 2>>errorlog.txt
-	net user suporte /add > nul 2>>errorlog.txt
-	:: definição de passwds de usuarios Super e Suporte
 	net user root %root_passwd% > nul 2>>errorlog.txt
-	net user suporte %passwd_suporte% > nul 2>>errorlog.txt
-	:: remover expiração de passwd dos usuarios - usuarios criados pelo Rufus e pelo comando acima tem uma passwd com prazo e apos esse prazo o sistema pede por uma nova passwd que seria escolhida pelo usuario
 	wmic UserAccount where Name='root' set PasswordExpires=false > nul 2>>errorlog.txt
-	wmic UserAccount where Name='suporte' set PasswordExpires=false > nul 2>>errorlog.txt
-	:: conceder/remover privilegios de admin dos usuarios
 	net localgroup %admin_group% root /add > nul 2>>errorlog.txt
-	net localgroup %admin_group% suporte /add > nul 2>>errorlog.txt
 	net localgroup %admin_group% "%username%" /delete > nul 2>>errorlog.txt
-	:: usuario padrao some se no estiver no grupo "Usuarios"
 	ver > nul
 	net localgroup %users_group% | find "%username%"
 	if not '%errorlevel%' == '0' (
@@ -239,11 +227,11 @@ if "%drop_admin_privilege%" == "yes " (
 	)
 )
 
-if not "%passwd" == " " (
+if not "%passwd%" == " " (
 	net user "%username%" %passwd% > nul 2>>errorlog.txt
 )
 
-:: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários n�o tenham acesso às passwds escritas nele
+:: script pauses before exiting and deletes config file so that users can't access admin passwords
 del "%~dp0config\config.txt"
 if exist "%~dp0config\MR" (
 	del "%~dp0config\MR"
@@ -255,14 +243,8 @@ rundll32.exe user32.dll,LockWorkStation > nul 2>>errorlog.txt
 
 if exist "%~dp0fix-setup.cmd" (
 	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
-	echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
-	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
-	echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
-	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	echo ::^ ERROS^ FORAM^ ENCONTRADOS^ DURANTE^ A^ INSTALACAO^ DE^ PROGRAMAS^ VIA^ WINGET.^              ::
-	echo ::^ Para^ conserta-los^ execute,^ sem^ privilegio^ de^ administrador^ o^ script^ fix-setup.cmd^  ::
+	echo ::^             ERRORS^ FOUND^ DURING^ INSTALLATION^ OF^ SOFTWARE^ VIA^ WINGET^                  ::
+	echo ::^                              CHECK^ fix-setup.cmd^ FILE^                                     ::
 	echo ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 )
 pause
