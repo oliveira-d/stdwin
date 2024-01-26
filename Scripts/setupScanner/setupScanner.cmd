@@ -42,10 +42,10 @@ if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 set sharedFolder="%userprofile%\Desktop\Scanner"
 set shareName=Scanner
 
-:: criar pasta, dar acesso completo ao super e compartilhar na rede
+:: criar pasta, dar acesso completo ao root e compartilhar na rede
 mkdir %sharedFolder%
-icacls %sharedFolder% /grant super:(F)
-net share %shareName%=%sharedFolder% /GRANT:super,FULL
+icacls %sharedFolder% /grant root:(F)
+net share %shareName%=%sharedFolder% /GRANT:root,FULL
 
 :: adicionar nome do computador no arquivo computersList.txt para configuração posterior no painel web da impressora
 echo "\\%computername%\%shareName%" >> computersList.txt

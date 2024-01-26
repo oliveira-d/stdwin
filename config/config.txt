@@ -1,37 +1,36 @@
-:: Esse arquivo contém variáveis utilizadas no script setup.cmd
-:: linhas que começam com :: são comentários e são ignoradas pelo script
-:: Preste atenção em quais parâmetros existem aspas e quais não
+:: This file contains variables used in the setup.cmd script
+:: lines starting with :: are comments and will be ignored
+:: Mind which parameters need quotemarks
 
-:: definir o padrão de nome da máquina. Ex: nos nomes BEEP-0123 ou BEEP-9999 o padrão definido é BEEP
-padrao_nome_maquina=BEEP
+:: set the pattern for the computer name
+computer_name_pattern=BEEP
 
-:: a variável abaixo pode ser usada pra fazer o script sempre forçar renomear a máquina, renomear só quando detectar fora do padrão OU ignorar completamente. Os valores possíveis são respectivamente: sempre, verificar, ignorar
-renomear_maquina=verificar
+:: variable bellow allows to decide how to deal with the computer rename: check if the name is according to the standard, ignore or always rename. Values can be respectively: check, ignore, always
+rename_computer=check
 
-:: caminho para o papel de parede e tela de bloqueio
-wallpaperFileName=WALLPAPER.png
-lockscreenFileName=WALLPAPER.png
+:: name of the image file for the wallpaper and lockscreen
+wallpaper_file_name=WALLPAPER.png
+lockscreen_file_name=WALLPAPER.png
 
-:: configurações do windows - preencher com "sim" ou "nao"
-desabilitar_hotspot=sim
-desabilitar_onedrive=sim
-desabilitar_teams=sim
-desabilitar_suspensao_tomada=sim
-desabilitar_suspensao_bateria=nao
-habilitar_windows_sandbox=sim
-:: opção cria os usuarios administradores super e suporte e remove os privilégios de administrador do usuario atual
-remover_privilegio_adm=sim
+:: windows configurations - fill with yes or no
+disable_hotspot=yes
+disable_onedrive=yes
+disable_teams=yes
+disable_ac_suspend=yes
+disable_bat_suspend=no
+enable_windows_sandbox=yes
+:: this option creates the root user and removes admin privileges from the current user
+drop_admin_privilege=yes
 
-:: definição das senhas de usuários
-senha_super=1234
-senha_suporte=1234
-senha=1234
+:: set users passwords
+root_passwd=1234
+passwd=1234
 
-:: configuração de idioma
-users_group=Usuários
-admin_group=Administradores
+:: language setup
+users_group=Users
+admin_group=Administrators
 
-:: endereço para download do winget e dependências
+:: url for downloading winget and dependencies
 winget_url=https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 ms_ui_xaml_url=https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.7.3/Microsoft.UI.Xaml.2.7.x64.appx
 ms_vclib_url=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx

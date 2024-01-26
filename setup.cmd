@@ -50,7 +50,7 @@ set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
 
 :: Definição de variáveis a partir do arquivo config.txt
 if not exist "%~dp0config\config.txt" (
-	echo Arquivo^ config.txt^ nao^ encontrado!
+	echo Arquivo^ config.txt^ no^ encontrado!
 	pause
 	exit
 )
@@ -58,36 +58,36 @@ for /F "usebackq tokens=*" %%V in ( `type "%~dp0config\config.txt" ^| findstr /V
 
 :: Verificação do nome do computador
 ver > nul
-if %renomear_maquina%==sempre (
+if %rename_computer%==always (
 	if not exist "%~dp0config\MR" (
-		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
-		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
+		echo Nome^ do^ computador^ no^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
+		"%~dp0Scripts\renamePC.cmd" %computer_name_pattern% 2>>errorlog.txt
 		echo Maquina^ renomeada > "%~dp0config\MR"
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
-		:: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
+		:: remover expiração de passwd dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma passwd com prazo e após esse prazo o sistema pede por uma nova passwd que seria escolhida pelo usuário
 		wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 		shutdown /r /t 30
 		pause
 		exit
 	)
-) else if %renomear_maquina%==verificar (
-	echo %computername% | findstr "%padrao_nome_maquina%" > nul
+) else if %rename_computer%==check (
+	echo %computername% | findstr "%computer_name_pattern%" > nul
 	if not '!errorlevel!' == '0' (
-		echo Nome^ do^ computador^ nao^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
-		"%~dp0Scripts\renamePC.cmd" %padrao_nome_maquina% 2>>errorlog.txt
+		echo Nome^ do^ computador^ no^ esta^ de^ acordo^ com^ o^ padrao^ requerido.
+		"%~dp0Scripts\renamePC.cmd" %computer_name_pattern% 2>>errorlog.txt
 		schtasks /create /tn "WindowsSTDSetup" /tr "%0" /sc onlogon /delay 0001:00 /rl highest
 		echo Esse^ script^ sera^ interrompido^ e^ a^ maquina^ sera^ reiniciada^ em^ 30^ segundos.^ Execute^ esse^ script^ novamente^ na^ proxima^ sessao^ apos^ confirmar^ que^ o^ nome^ do^ computador^ esta^ no^ padrao^ requerido
-		:: remover expiração de senha dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma senha com prazo e após esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuário
+		:: remover expiração de passwd dos usuários - usuários criados pelo Rufus e pelo comando "net user" tem uma passwd com prazo e após esse prazo o sistema pede por uma nova passwd que seria escolhida pelo usuário
 		wmic UserAccount where Name="%username%" set PasswordExpires=false > nul 2>>errorlog.txt
 		shutdown /r /t 30
 		pause
 		exit
 	)
-) else if %renomear_maquina%==ignorar (
+) else if %rename_computer%==ignore (
 	echo Ignorando^ verificacao^ de^ nome^ de^ maquina.
 ) else (
-	echo Parametro^ "renomear_maquina"^ nao^ reconhecido.
+	echo Parametro^ "rename_computer"^ no^ reconhecido.
 	pause
 	exit
 )
@@ -97,7 +97,7 @@ if not '%1' == 'programas-manuais-instalados' (
 	for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
 )
 
-:: verificar se winget est� instalado e, se n�o, instal�-lo e relan�ar o script:
+:: check se winget est� instalado e, se n�o, instal�-lo e relan�ar o script:
 ver > nul
 winget list --accept-source-agreements > nul
 CLS
@@ -132,11 +132,11 @@ if not '%errorlevel%' == '0' (
 	exit
 )
 
-:: desabilitar suspensao automatica antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
-if "%desabilitar_suspensao_tomada%" == "sim " (
+:: disable suspensao automatica antes de começar as instalações via winget (MS Office demora demais e as vezes o notebook suspende durante a instalação)
+if "%disable_ac_suspend%" == "yes " (
 	powercfg /x standby-timeout-ac 0
 )
-if "%desabilitar_suspensao_bateria%" == "sim " (
+if "%disable_bat_suspend%" == "yes " (
 	powercfg /x standby-timeout-dc 0
 )
 
@@ -174,64 +174,64 @@ powershell Set-ExecutionPolicy unrestricted
 
 :: Aplicar papel de parede
 if not "%wallpaperPath%" == " " (
-	if exist "%~dp0Files\%wallpaperFileName%" (
+	if exist "%~dp0Files\%wallpaper_file_name%" (
 		echo Aplicando^ papel^ de^ parede...
-		powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" "%~dp0Files\%wallpaperFileName%"
+		powershell -File "%~dp0Scripts\Set-Wallpaper.ps1" "%~dp0Files\%wallpaper_file_name%"
 	)
 )
 
 :: Aplicar tela de bloqueio
 if not "%lockscreenPath%" == " " (
-	if exist "%~dp0Files\%lockscreenFileName%" (
+	if exist "%~dp0Files\%lockscreen_file_name%" (
 		echo Aplicando^ tela^ de^ bloqueio...
-		powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" "%~dp0Files\%lockscreenFileName%"
+		powershell -File "%~dp0Scripts\Set-Lockscreen.ps1" "%~dp0Files\%lockscreen_file_name%"
 	)
 )
 
 :: RESTRINGIR EXECUÇÃO DE SCRIPTS DE POWERSHELL
 powershell Set-ExecutionPolicy restricted
 
-:: desabilitar OneDrive
-if "%desabilitar_onedrive%" == "sim " (
+:: disable OneDrive
+if "%disable_onedrive%" == "yes " (
 	echo Desabilitando^ OneDrive...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v OneDrive /t REG_SZ /d NoOneDrive
 	netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out program="C:\ProgramFiles (x86)\Microsoft OneDrive\OneDrive.exe"
 )
 
-:: desabilitar Teams
-if "%desabilitar_teams%" == "sim " (
+:: disable Teams
+if "%disable_teams%" == "yes " (
 	echo Desabilitando^ Teams...
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f /v com.squirrel.Teams.Teams /t REG_SZ /d NoTeamsCurrentUser
 	reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run" /f /v TeamsMachineInstaller /t REG_SZ /d NoTeamsLocalMachine
 )
 
-:: desabilitar serviço de hostpot
-if "%desabilitar_hotspot%" == "sim " (
+:: disable serviço de hostpot
+if "%disable_hotspot%" == "yes " (
 	echo Desabilitando^ servico^ de^ hotspot...
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
 )
 
-:: habilitar windows sandbox
-if "%habilitar_windows_sandbox" == "sim" (
+:: enable windows sandbox
+if "%enable_windows_sandbox" == "yes" (
 	powershell -command "Enable-WindowsOptionalFeature -FeatureName 'Containers-DisposableClientVM' -All -Online"
 )
 
 :: criação de usuários Super e Suporte
-if "%remover_privilegio_adm%" == "sim " (
+if "%drop_admin_privilege%" == "yes " (
 	echo Criando^ usuarios^ administradores...
-	net user super /add > nul 2>>errorlog.txt
+	net user root /add > nul 2>>errorlog.txt
 	net user suporte /add > nul 2>>errorlog.txt
-	:: definição de senhas de usuarios Super e Suporte
-	net user super %senha_super% > nul 2>>errorlog.txt
-	net user suporte %senha_suporte% > nul 2>>errorlog.txt
-	:: remover expiração de senha dos usuarios - usuarios criados pelo Rufus e pelo comando acima tem uma senha com prazo e apos esse prazo o sistema pede por uma nova senha que seria escolhida pelo usuario
-	wmic UserAccount where Name='super' set PasswordExpires=false > nul 2>>errorlog.txt
+	:: definição de passwds de usuarios Super e Suporte
+	net user root %root_passwd% > nul 2>>errorlog.txt
+	net user suporte %passwd_suporte% > nul 2>>errorlog.txt
+	:: remover expiração de passwd dos usuarios - usuarios criados pelo Rufus e pelo comando acima tem uma passwd com prazo e apos esse prazo o sistema pede por uma nova passwd que seria escolhida pelo usuario
+	wmic UserAccount where Name='root' set PasswordExpires=false > nul 2>>errorlog.txt
 	wmic UserAccount where Name='suporte' set PasswordExpires=false > nul 2>>errorlog.txt
 	:: conceder/remover privilegios de admin dos usuarios
-	net localgroup %admin_group% super /add > nul 2>>errorlog.txt
+	net localgroup %admin_group% root /add > nul 2>>errorlog.txt
 	net localgroup %admin_group% suporte /add > nul 2>>errorlog.txt
 	net localgroup %admin_group% "%username%" /delete > nul 2>>errorlog.txt
-	:: usuario padrao some se nao estiver no grupo "Usuarios"
+	:: usuario padrao some se no estiver no grupo "Usuarios"
 	ver > nul
 	net localgroup %users_group% | find "%username%"
 	if not '%errorlevel%' == '0' (
@@ -239,11 +239,11 @@ if "%remover_privilegio_adm%" == "sim " (
 	)
 )
 
-if not "%senha" == " " (
-	net user "%username%" %senha% > nul 2>>errorlog.txt
+if not "%passwd" == " " (
+	net user "%username%" %passwd% > nul 2>>errorlog.txt
 )
 
-:: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários n�o tenham acesso às senhas escritas nele
+:: o script pausa antes de fechar o cmd e deleta o arquivo de configuração para que usuários n�o tenham acesso às passwds escritas nele
 del "%~dp0config\config.txt"
 if exist "%~dp0config\MR" (
 	del "%~dp0config\MR"
