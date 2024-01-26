@@ -198,7 +198,6 @@ if "%desabilitar_onedrive%" == "sim " (
 	netsh advfirewall firewall add rule name="BlockOneDrive0" action=block dir=out program="C:\ProgramFiles (x86)\Microsoft OneDrive\OneDrive.exe"
 )
 
-
 :: desabilitar Teams
 if "%desabilitar_teams%" == "sim " (
 	echo Desabilitando^ Teams...
@@ -210,6 +209,11 @@ if "%desabilitar_teams%" == "sim " (
 if "%desabilitar_hotspot%" == "sim " (
 	echo Desabilitando^ servico^ de^ hotspot...
 	sc config icssvc start=disabled > nul 2>>errorlog.txt
+)
+
+:: habilitar windows sandbox
+if "%habilitar_windows_sandbox" == "sim" (
+	powershell -command "Enable-WindowsOptionalFeature -FeatureName 'Containers-DisposableClientVM' -All -Online"
 )
 
 :: criação de usuários Super e Suporte

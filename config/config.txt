@@ -18,6 +18,7 @@ desabilitar_onedrive=sim
 desabilitar_teams=sim
 desabilitar_suspensao_tomada=sim
 desabilitar_suspensao_bateria=nao
+habilitar_windows_sandbox=sim
 :: opção cria os usuarios administradores super e suporte e remove os privilégios de administrador do usuario atual
 remover_privilegio_adm=sim
 
