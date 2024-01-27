@@ -1,19 +1,17 @@
-Script em batch para padronização de sistemas Windows 11 e 10.
+Batch script to setup Windows 10 and 11
 
-INSTRUÇÕES DE USO: 
-1) Instale o Windows com o usuário padrão ("Beep Saude" ou outro) como administrador (único usuário do sistema) 
-2) Copie a pasta para o destino C:\ (opcional)
-3) Execute o script setup.cmd
-4) Caso o script esteja configurado para renomear o computador ele irá reiniciar e, se estiver ligado à tomada, se reexecutar automaticamente em 1 minuto após o login caso a máquina esteja ligada à tomada.
-5) Caso ocorra falha na instalação de algum dos aplicativos via winget, um arquivo chamado fix-setup.cmd será criado, podendo ser usado para corrigir ou investigar o problema.
-6) Ao terminar a execução do script, verifique se algum dos comandos retornou com erro e ajuste manualmente o restante que for necessário. Um registro de erros é feito no arquivo errorlog.txt
+INSTRUCTIONS:
+1) Install Windows with your default user as administrator (the only user you create during windows first setup)
+2) Copy this folder do a permanent location (C:\ is a good sugestion)
+3) Execute setup.cmd
+4) If the script prompts you to rename the computer it'll will reboot and if conected to AC adapter it'll automatically execute the script a minute after logon
+5) If any app install via winget fails, a file named fix-setup.cmd will be created. Check the file content to see with install failed and deal with those software accordingly. (The most common issue is security hash verification fails, so using "winget install" with the flag --ignore-security-hash might solve the issue - this can't be executed as admin)
+6) When finished the execution of the script, check for errors. An error log can be found in the file errorlog.txt
 
-* Dica: para agilizar a instalação do Windows e criação do usuário, utilize o Rufus para a gravação do pendrive e configure as opções desejadas como nome do usuário e configurações de região e idioma.
+config folder:
+- configuration files - edit them according to your needs
 
-Pasta config:
-- Arquivos de configuração estão localizados na pasta config
-
-Pasta Files:
-- Arquivos nessa pasta com extensão .exe ou .msi serão executados automaticamente, mas possivelmente ainda de forma interativa
-- Arquivos de atalho com extensão .url são copiados para a área de trabalho e para o menu iniciar
-- A imagem que se deseja usar como papel de parede e/ou tela de bloqueio também deve estar nessa pasta
+Files folder
+- Files in this folder with .exe or .msi extensions will be automatically launched, but possibly still in interactive mode
+- Files with .url extension will be copied to Desktop and Start Menu
+- The image intended to be used as wallpaper and/or lockscreen should be in this folder
