@@ -36,10 +36,9 @@ if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 
 :: start of the script
 
-:: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time
+:: Delayed Expansion will cause variables to be expanded at execution time rather than at parse time. Important for some %errorlevel% handling
 setlocal EnableDelayedExpansion
 chcp 65001 > nul
-set first_winget_install=done
 set winget_msixbundle=Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 set ui_xaml_appx=Microsoft.UI.Xaml.2.7.x64.appx
 set vclib_appx=Microsoft.VCLibs.x64.14.00.Desktop.appx
@@ -87,16 +86,12 @@ if %rename_computer%==always (
 	exit
 )
 
-if not '%1' == 'skip-exe' (
-	for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" /S )
-	for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
-)
+:: install programs in Files
+for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" /S )
+for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
 
-:: check if winget is installed and, if not, install it and relaunch script
-ver > nul
-winget list --accept-source-agreements > nul
-CLS
-if not '%errorlevel%' == '0' (
+:: (re)install winget - try once. if it fails it'll proceed anyway 
+if not '%1' == 'winget-installed' (
 	systeminfo | find "Windows 10" > nul
 	if '!errorlevel!' == '0' (
 		if not exist .\temp\%ui_xaml_appx% ( 
@@ -123,7 +118,7 @@ if not '%errorlevel%' == '0' (
 	CLS
 	echo Installing^ Microsoft.DesktopAppInstaller...
 	powershell Add-AppXPackage -Path .\temp\%winget_msixbundle% 2>>errorlog.txt
-	%0 skip-exe
+	%0 winget-installed
 	exit
 )
 
@@ -136,19 +131,12 @@ if "%disable_bat_suspend%" == "yes " (
 )
 
 :: instalação de programas via winget
-winget list --accept-source-agreements > nul
-ver > nul
 echo Installing^ software^ via^ winget...
 for /F "usebackq tokens=*" %%P in ( `type "%~dp0config\winget.txt" ^| findstr /V "^::"` ) do (
-	winget list | find /i "%%P "
-	if '!errorlevel!' == '1' ( 
+	winget list --accept-source-agreements | find /i "%%P "
+	if '!errorlevel!' == '1' (
 		echo Installing^ %%P...
-		if '%first_winget_install%' == 'done' ( 
-		winget install %%P 
-		) else ( 
-			winget install --accept-source-agreements %%P
-			set first_winget_install=done
-		)
+		winget install --accept-source-agreements %%P 
 	) else (
 		echo %%P^ already^ installed!
 	)
