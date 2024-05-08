@@ -86,12 +86,12 @@ if %rename_computer%==always (
 	exit
 )
 
-:: install programs in Files
-for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" /S )
-for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
-
 :: (re)install winget - try once. if it fails it'll proceed anyway 
 if not '%1' == 'winget-installed' (
+	:: install programs in Files
+	for %%F in ( "%~dp0Files\*.exe" ) do ( "%%F" /S )
+	for %%F in ( "%~dp0Files\*.msi" ) do ( "%%F" )
+	:: install winget
 	systeminfo | find "Windows 10" > nul
 	if '!errorlevel!' == '0' (
 		if not exist .\temp\%ui_xaml_appx% ( 
@@ -203,10 +203,10 @@ if "%enable_windows_sandbox" == "yes" (
 :: create root user and drop privileges
 if "%drop_admin_privilege%" == "yes " (
 	echo Creating^ administrators^ users...
-	net user root /add > nul 2>>errorlog.txt
-	net user root %root_passwd% > nul 2>>errorlog.txt
-	wmic UserAccount where Name='root' set PasswordExpires=false > nul 2>>errorlog.txt
-	net localgroup %admin_group% root /add > nul 2>>errorlog.txt
+	net user "%root_username%" /add > nul 2>>errorlog.txt
+	net user "%root_username%" %root_passwd% > nul 2>>errorlog.txt
+	wmic UserAccount where Name='%root_username%' set PasswordExpires=false > nul 2>>errorlog.txt
+	net localgroup %admin_group% "%root_username%" /add > nul 2>>errorlog.txt
 	net localgroup %admin_group% "%username%" /delete > nul 2>>errorlog.txt
 	ver > nul
 	net localgroup %users_group% | find "%username%"
